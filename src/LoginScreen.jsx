@@ -27,7 +27,7 @@ export const LoginScreen = () => {
                     <form onSubmit={handleLogin} className="space-y-4">
                         <div>
                             <label className="block text-gray-600 text-sm font-medium mb-2" htmlFor="email">Email</label>
-                            <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full px-4 py-3 rounded-lg bg-gray-100" placeholder="admin@demo.com or tech@demo.com"/>
+                            <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full px-4 py-3 rounded-lg bg-gray-100" placeholder="tech@, admin@ or superadmin@demo.com"/>
                         </div>
                         <div>
                             <label className="block text-gray-600 text-sm font-medium mb-2" htmlFor="password">Password</label>
@@ -38,6 +38,12 @@ export const LoginScreen = () => {
                             {loading ? <Loader small={true} /> : 'Sign In'}
                         </button>
                     </form>
+                    <div className="mt-6 pt-4 border-t border-gray-100 text-xs text-gray-500 space-y-1">
+                        <p className="font-semibold text-gray-600">Demo logins (any password)</p>
+                        <p>Technician: tech@demo.com</p>
+                        <p>Company admin: admin@demo.com</p>
+                        <p>Super admin: superadmin@demo.com</p>
+                    </div>
                 </div>
             </div>
         </div>

@@ -37,6 +37,22 @@ export const MOCK_TECH_USER = {
 // =========================================================================
 export const store = {};
 
+// Super admin — platform owner who builds out companies
+export const MOCK_SUPER_ADMIN_USER = {
+    id: 'super_admin_1',
+    full_name: 'Platform Admin',
+    email: 'superadmin@demo.com',
+    role: 'super_admin',
+    company: { id: 'platform', name: 'Upseller Platform', logo_url: '', brand_color: '#1F2937' },
+};
+
+// Companies on the platform. Only ServicePro HVAC carries live demo data; the others are [SYN] examples.
+store.companies = [
+    { id: 'comp_sp_123', name: 'ServicePro HVAC', website: 'servicepro-hvac.example', industry: 'HVAC', brand_color: '#004B87', admin_name: 'Admin Manager', admin_email: 'admin@demo.com', technicians: 5, status: 'active', created_at: '2026-05-21T00:00:00Z' },
+    { id: 'comp_syn_1', name: 'Coastal Climate Pros [SYN]', website: 'coastalclimate.example', industry: 'HVAC', brand_color: '#0F766E', admin_name: 'Dana Ruiz [SYN]', admin_email: 'dana@coastalclimate.example', technicians: 8, status: 'active', created_at: '2026-08-02T00:00:00Z' },
+    { id: 'comp_syn_2', name: 'Brightwater Mechanical [SYN]', website: 'brightwatermech.example', industry: 'Plumbing', brand_color: '#7C3AED', admin_name: 'Lee Park [SYN]', admin_email: 'lee@brightwatermech.example', technicians: 12, status: 'onboarding', created_at: '2026-10-01T00:00:00Z' },
+];
+
 // Additional technician users for multi-tech demo
 store.technicians = [
     { id: 'tech_123', full_name: 'John Doe', email: 'john.doe@demo.com', status: 'active' },

@@ -4,12 +4,14 @@ import { Loader } from './components/Loader';
 import { LoginScreen } from './LoginScreen';
 import { TechnicianPortal } from './portals/technician/TechnicianPortal';
 import { CompanyAdminPortal } from './portals/admin/CompanyAdminPortal';
+import { SuperAdminPortal } from './portals/superadmin/SuperAdminPortal';
 
 const AppRouter = () => {
     const { user } = useAuth();
     switch (user?.role) {
         case 'technician': return <TechnicianPortal />;
         case 'admin': return <CompanyAdminPortal />;
+        case 'super_admin': return <SuperAdminPortal />;
         default: return <div>Error: Invalid user role.</div>;
     }
 };

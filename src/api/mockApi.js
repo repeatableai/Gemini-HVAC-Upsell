@@ -1,4 +1,4 @@
-import { MOCK_ADMIN_USER, MOCK_TECH_USER, MOCK_CUSTOMERS_QB, SEASONAL_CONFIG, VISIT_CHECKLISTS, DECLINE_REASONS, store } from './mockData.js';
+import { MOCK_ADMIN_USER, MOCK_TECH_USER, MOCK_SUPER_ADMIN_USER, MOCK_CUSTOMERS_QB, SEASONAL_CONFIG, VISIT_CHECKLISTS, DECLINE_REASONS, store } from './mockData.js';
 
 const delay = (ms) => new Promise(res => setTimeout(res, ms));
 
@@ -125,9 +125,49 @@ export const api = {
         await delay(500);
         if (email === 'admin@demo.com') return { user: MOCK_ADMIN_USER, error: null };
         if (email === 'tech@demo.com') return { user: MOCK_TECH_USER, error: null };
-        return { user: null, error: { message: 'Invalid credentials. Use admin@demo.com or tech@demo.com.' } };
+        if (email === 'superadmin@demo.com') return { user: MOCK_SUPER_ADMIN_USER, error: null };
+        return { user: null, error: { message: 'Invalid credentials. Use tech@demo.com, admin@demo.com or superadmin@demo.com.' } };
     },
     signOut: async () => { await delay(200); },
+
+    // --- Companies (super admin) ---
+    getCompanies: async () => {
+        await delay(400);
+        return { data: [...store.companies], error: null };
+    },
+    createCompany: async (companyData) => {
+        await delay(600);
+        const company = {
+            ...companyData,
+            id: `comp_${Date.now()}`,
+            technicians: 0,
+            status: 'onboarding',
+            created_at: new Date().toISOString(),
+        };
+        store.companies.push(company);
+        return { data: company, error: null };
+    },
+    updateCompanyStatus: async (companyId, status) => {
+        await delay(300);
+        store.companies = store.companies.map(c => c.id === companyId ? { ...c, status } : c);
+        return { data: null, error: null };
+    },
+    getPlatformStats: async () => {
+        await delay(300);
+        const cutoff = new Date();
+        cutoff.setDate(cutoff.getDate() - 30);
+        const events = store.offerEvents.filter(e => new Date(e.timestamp) >= cutoff);
+        return {
+            data: {
+                companies: store.companies.length,
+                activeCompanies: store.companies.filter(c => c.status === 'active').length,
+                technicians: store.companies.reduce((sum, c) => sum + (c.technicians || 0), 0),
+                offers30d: events.length,
+                revenue30d: events.filter(e => e.outcome === 'approved').reduce((sum, e) => sum + e.revenue, 0),
+            },
+            error: null,
+        };
+    },
 
     // --- Services ---
     getServices: async () => {
