@@ -265,7 +265,12 @@ export const DashboardScreen = () => {
             )}
 
             {/* Top stat cards */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+                <div className="bg-amber-50 border border-amber-200 p-5 rounded-xl shadow">
+                    <h3 className="text-amber-800 text-sm font-semibold">Ask Rate</h3>
+                    <p className="text-3xl font-bold text-amber-700 mt-1">{(stats.askRate * 100).toFixed(0)}%</p>
+                    <p className="text-xs text-amber-700 mt-1">{stats.askedVisits} of {stats.visitCount} visits had an offer</p>
+                </div>
                 <div className="bg-white p-5 rounded-xl shadow">
                     <h3 className="text-gray-500 text-sm font-semibold">Total Offers</h3>
                     <p className="text-3xl font-bold mt-1">{stats.totalPresented}</p>

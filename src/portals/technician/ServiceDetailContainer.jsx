@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { api } from '../../api/mockApi';
 import { useAuth } from '../../context/AuthContext';
 import { CheckIcon } from '../../components/Icons';
 import { SuccessScreen } from '../../components/SuccessScreen';
 import { CustomerDecisionScreen } from './CustomerDecisionScreen';
 
-const TechnicianDetailScreen = ({ service, onBack, onPresent }) => (
+const TechnicianDetailScreen = ({ service, onBack, onPresent, videos = [] }) => (
     <div className="p-4 sm:p-6 bg-gray-50 min-h-screen">
         <button onClick={onBack} className="text-blue-600 font-semibold mb-4 inline-flex items-center">&larr; Back to Services</button>
         <div className="bg-white p-6 rounded-2xl shadow-lg">
@@ -24,6 +24,12 @@ const TechnicianDetailScreen = ({ service, onBack, onPresent }) => (
                     ))}
                 </ul>
             </div>
+            {videos.length > 0 && (
+                <div className="mb-6">
+                    <h3 className="font-semibold text-gray-700 mb-2">Show the customer: {videos[0].title}</h3>
+                    <video src={videos[0].video_url} controls playsInline className="w-full rounded-xl bg-black aspect-video" />
+                </div>
+            )}
             <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-lg mb-6">
                 <h3 className="font-bold text-yellow-800">Your Script:</h3>
                 <p className="text-yellow-900 italic mt-1">"{service.script}"</p>
@@ -36,8 +42,8 @@ const TechnicianDetailScreen = ({ service, onBack, onPresent }) => (
 );
 
 // Follow-up prompt shown after a decline
-const FollowUpPrompt = ({ service, declineReason, onFollowUp, onSkip }) => {
-    const [address, setAddress] = useState('');
+const FollowUpPrompt = ({ service, defaultAddress, onFollowUp, onSkip }) => {
+    const [address, setAddress] = useState(defaultAddress);
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 text-center">
             <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
@@ -72,20 +78,28 @@ const FollowUpPrompt = ({ service, declineReason, onFollowUp, onSkip }) => {
     );
 };
 
-export const ServiceDetailContainer = ({ service, onBack, onApproved, onDeclined }) => {
+export const ServiceDetailContainer = ({ service, visit, onBack, onApproved, onDeclined }) => {
     const [view, setView] = useState('detail');
     const [lastDeclineReason, setLastDeclineReason] = useState('');
+    const [videos, setVideos] = useState([]);
     const { user } = useAuth();
+
+    useEffect(() => {
+        api.getReadyVideosForService(service.id).then(({ data }) => setVideos(data || []));
+    }, [service.id]);
 
     const handlePresentToCustomer = () => setView('customer');
 
-    const handleCustomerDecision = async (decision, declineReason) => {
+    const handleCustomerDecision = async (decision, declineReason, customerInitials) => {
         await api.logOfferDecision({
             technician_id: user.id,
             service_id: service.id,
+            visit_id: visit?.id,
             outcome: decision,
             revenue: 0,
             decline_reason: declineReason,
+            customer_initials: customerInitials,
+            address: visit?.address || undefined,
         });
         if (decision === 'approved') {
             setView('approved_success');
@@ -98,7 +112,7 @@ export const ServiceDetailContainer = ({ service, onBack, onApproved, onDeclined
 
     const handleFollowUp = async (address) => {
         await api.createFollowUp({
-            address,
+            address: address || visit?.address,
             service_id: service.id,
             service_name: service.name,
             technician_id: user.id,
@@ -114,8 +128,8 @@ export const ServiceDetailContainer = ({ service, onBack, onApproved, onDeclined
     };
 
     if (view === 'customer') return <CustomerDecisionScreen service={service} onDecision={handleCustomerDecision} />;
-    if (view === 'follow_up_prompt') return <FollowUpPrompt service={service} declineReason={lastDeclineReason} onFollowUp={handleFollowUp} onSkip={handleSkipFollowUp} />;
+    if (view === 'follow_up_prompt') return <FollowUpPrompt service={service} defaultAddress={visit?.address || ''} onFollowUp={handleFollowUp} onSkip={handleSkipFollowUp} />;
     if (view === 'approved_success') return <SuccessScreen title="Service Approved!" message="Added to the order. You can present more services or create the binding order." />;
     if (view === 'declined_success') return <SuccessScreen title="Decision Recorded" message="The customer's choice has been logged." isDecline={true} />;
-    return <TechnicianDetailScreen service={service} onBack={onBack} onPresent={handlePresentToCustomer} />;
+    return <TechnicianDetailScreen service={service} videos={videos} onBack={onBack} onPresent={handlePresentToCustomer} />;
 };

@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { api } from '../../api/mockApi';
 import { Loader } from '../../components/Loader';
 import { LogOutIcon } from '../../components/Icons';
+import { VideoStudioScreen } from '../shared/VideoStudioScreen';
 
 const INDUSTRIES = ['HVAC', 'Plumbing', 'Electrical', 'Roofing', 'Pest Control', 'Pool Service', 'Landscaping', 'Other'];
 
@@ -89,6 +90,7 @@ export const SuperAdminPortal = () => {
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const [notice, setNotice] = useState('');
+    const [tab, setTab] = useState('companies');
 
     const load = useCallback(async () => {
         const [c, s] = await Promise.all([api.getCompanies(), api.getPlatformStats()]);
@@ -124,6 +126,14 @@ export const SuperAdminPortal = () => {
                 </div>
             </header>
 
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-4 flex gap-2">
+                {[['companies', 'Companies'], ['videos', 'Video production']].map(([key, label]) => (
+                    <button key={key} onClick={() => setTab(key)} className={`px-4 py-2 rounded-lg text-sm font-semibold ${tab === key ? 'bg-[#1F2937] text-white' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'}`}>{label}</button>
+                ))}
+            </div>
+            {tab === 'videos' ? (
+                <div className="max-w-6xl mx-auto"><VideoStudioScreen mode="producer" requestedBy={user.full_name} /></div>
+            ) : (
             <main className="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
                 {loading ? (
                     <div className="flex justify-center py-20"><Loader /></div>
@@ -186,6 +196,7 @@ export const SuperAdminPortal = () => {
                     </>
                 )}
             </main>
+            )}
         </div>
     );
 };

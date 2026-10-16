@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../api/mockApi';
 import { LogOutIcon, CheckIcon } from '../../components/Icons';
 import { ServiceListScreen } from './ServiceListScreen';
 import { ServiceDetailContainer } from './ServiceDetailContainer';
 import { OrderFormScreen } from './OrderFormScreen';
+import { StartVisitScreen } from './StartVisitScreen';
+import { SuccessScreen } from '../../components/SuccessScreen';
 
 // =========================================================================
 // ORDER RECEIPT SCREEN — shown after submission, simulates email to customer
@@ -127,7 +129,34 @@ export const TechnicianPortal = () => {
     const [approvedItems, setApprovedItems] = useState([]);
     const [view, setView] = useState('list');
     const [completedOrder, setCompletedOrder] = useState(null);
+    const [visit, setVisit] = useState(null);
+    const [progress, setProgress] = useState(null);
+    const [closing, setClosing] = useState(false);
+    const [closedSummary, setClosedSummary] = useState(null);
     const { user, logout } = useAuth();
+
+    const refreshProgress = useCallback(async (visitId) => {
+        const { data } = await api.getVisitProgress(visitId);
+        setProgress(data);
+    }, []);
+
+    useEffect(() => {
+        if (visit && view === 'list') refreshProgress(visit.id);
+    }, [visit, view, refreshProgress]);
+
+    const finishVisit = async () => {
+        setClosing(true);
+        const { data, error } = await api.closeVisit(visit.id);
+        setClosing(false);
+        if (error) { setProgress(data); return false; }
+        setClosedSummary({ customer: visit.customer_name, asked: data.askedCount, required: data.requiredCount });
+        setVisit(null);
+        setProgress(null);
+        setApprovedItems([]);
+        setView('closed');
+        setTimeout(() => setView('list'), 2200);
+        return true;
+    };
 
     const handleSelectService = (service) => {
         setCurrentService(service);
@@ -175,6 +204,7 @@ export const TechnicianPortal = () => {
 
     const handleOrderSubmit = async (orderDetails) => {
         const result = await api.submitOrder(orderDetails);
+        await api.recordOrderRevenue({ technician_id: user.id, visit_id: visit?.id, items: orderDetails.items });
         setCompletedOrder({
             ...orderDetails,
             order_id: result.data?.[0]?.id || `ORD-${Date.now()}`,
@@ -202,6 +232,7 @@ export const TechnicianPortal = () => {
         return (
             <ServiceDetailContainer
                 service={currentService}
+                visit={visit}
                 onBack={() => { setCurrentService(null); setView('list'); }}
                 onApproved={handleServiceApproved}
                 onDeclined={handleServiceDeclined}
@@ -225,25 +256,37 @@ export const TechnicianPortal = () => {
         return (
             <OrderReceiptScreen
                 order={completedOrder}
-                onDone={() => {
+                onDone={async () => {
                     setApprovedItems([]);
                     setCompletedOrder(null);
-                    setView('list');
+                    if (visit) { await finishVisit(); } else { setView('list'); }
                 }}
             />
         );
+    }
+
+    if (view === 'closed' && closedSummary) {
+        return <SuccessScreen title="Visit closed" message={`${closedSummary.customer}: ${closedSummary.asked} of ${closedSummary.required} required offers asked.`} />;
     }
 
     return (
         <div className="min-h-screen bg-gray-50">
             <AppHeader />
             <main>
-                <ServiceListScreen
-                    onSelectService={handleSelectService}
-                    approvedItems={approvedItems}
-                    onOpenOrder={handleOpenOrder}
-                    onRemoveItem={handleRemoveItem}
-                />
+                {!visit ? (
+                    <StartVisitScreen user={user} onStarted={(v) => { setVisit(v); setView('list'); }} />
+                ) : (
+                    <ServiceListScreen
+                        onSelectService={handleSelectService}
+                        approvedItems={approvedItems}
+                        onOpenOrder={handleOpenOrder}
+                        onRemoveItem={handleRemoveItem}
+                        visit={visit}
+                        progress={progress}
+                        onCloseVisit={finishVisit}
+                        closing={closing}
+                    />
+                )}
             </main>
         </div>
     );

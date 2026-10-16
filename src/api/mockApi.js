@@ -1,4 +1,4 @@
-import { MOCK_ADMIN_USER, MOCK_TECH_USER, MOCK_SUPER_ADMIN_USER, MOCK_CUSTOMERS_QB, SEASONAL_CONFIG, VISIT_CHECKLISTS, DECLINE_REASONS, store } from './mockData.js';
+import { MOCK_ADMIN_USER, MOCK_TECH_USER, MOCK_SUPER_ADMIN_USER, MOCK_CUSTOMERS_QB, SEASONAL_CONFIG, VISIT_CHECKLISTS, DECLINE_REASONS, VIDEO_PURPOSES, store } from './mockData.js';
 
 const delay = (ms) => new Promise(res => setTimeout(res, ms));
 
@@ -100,8 +100,15 @@ function computeDashboardStats(periodDays = 30) {
         declineReasons[reason] = (declineReasons[reason] || 0) + 1;
     });
 
+    // Ask rate — share of visits where at least one offer was presented
+    const askedVisits = visits.filter(v => events.some(e => e.visit_id === v.id)).length;
+    const askRate = visits.length > 0 ? askedVisits / visits.length : 0;
+
     return {
         totalPresented,
+        visitCount: visits.length,
+        askedVisits,
+        askRate,
         approvedCount: approved.length,
         declinedCount: declined.length,
         approvalRate,
@@ -113,6 +120,33 @@ function computeDashboardStats(periodDays = 30) {
         byTechnician: Object.values(techMap).sort((a, b) => b.revenue - a.revenue),
         config: { ...store.config },
     };
+}
+
+// =========================================================================
+// THE GATE — which offers a visit must present before it can close
+// =========================================================================
+
+export function requiredServiceIds(visitType, date = new Date()) {
+    const month = date.getMonth() + 1;
+    const fromChecklist = (VISIT_CHECKLISTS[visitType] || []).map(item => item.leads_to);
+    const inSeason = Object.entries(SEASONAL_CONFIG)
+        .filter(([, cfg]) => cfg.label && cfg.months.includes(month))
+        .map(([id]) => id);
+    const limit = store.config.required_offers_per_visit || 4;
+    return [...new Set([...fromChecklist, ...inSeason])]
+        .filter(id => store.services.some(s => s.id === id && s.is_active !== false))
+        .slice(0, limit);
+}
+
+function visitProgress(visit) {
+    const events = store.offerEvents.filter(e => e.visit_id === visit.id);
+    const required = visit.required_service_ids.map(id => {
+        const svc = store.services.find(s => s.id === id);
+        const last = [...events].reverse().find(e => e.service_id === id);
+        return { service_id: id, name: svc?.name || id, outcome: last?.outcome || null, decline_reason: last?.decline_reason || null };
+    });
+    const askedCount = required.filter(r => r.outcome).length;
+    return { required, askedCount, requiredCount: required.length, canClose: askedCount === required.length };
 }
 
 // =========================================================================
@@ -129,6 +163,64 @@ export const api = {
         return { user: null, error: { message: 'Invalid credentials. Use tech@demo.com, admin@demo.com or superadmin@demo.com.' } };
     },
     signOut: async () => { await delay(200); },
+
+    // --- Visits (the gate) ---
+    startVisit: async ({ technician_id, customer_name, address, visit_type }) => {
+        await delay(400);
+        const visit = {
+            id: `visit_${Date.now()}`,
+            technician_id,
+            customer_name,
+            address,
+            visit_type,
+            required_service_ids: requiredServiceIds(visit_type),
+            status: 'open',
+            timestamp: new Date().toISOString(),
+        };
+        store.visits.push(visit);
+        return { data: visit, error: null };
+    },
+    getVisitProgress: async (visitId) => {
+        await delay(150);
+        const visit = store.visits.find(v => v.id === visitId);
+        if (!visit) return { data: null, error: { message: 'Visit not found.' } };
+        return { data: visitProgress(visit), error: null };
+    },
+    closeVisit: async (visitId) => {
+        await delay(400);
+        const visit = store.visits.find(v => v.id === visitId);
+        if (!visit) return { data: null, error: { message: 'Visit not found.' } };
+        const progress = visitProgress(visit);
+        if (!progress.canClose) {
+            return { data: progress, error: { message: `Present ${progress.requiredCount - progress.askedCount} more required offer(s) before closing this visit.` } };
+        }
+        visit.status = 'closed';
+        visit.closed_at = new Date().toISOString();
+        return { data: progress, error: null };
+    },
+
+    // --- Video requests (3D movie pipeline) ---
+    getVideoPurposes: async () => ({ data: VIDEO_PURPOSES, error: null }),
+    getVideoRequests: async (companyId) => {
+        await delay(300);
+        const list = companyId ? store.videoRequests.filter(v => v.company_id === companyId) : store.videoRequests;
+        return { data: [...list].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)), error: null };
+    },
+    createVideoRequest: async (request) => {
+        await delay(400);
+        const record = { ...request, id: `vid_${Date.now()}`, status: 'requested', video_url: '', production_folder: '', created_at: new Date().toISOString() };
+        store.videoRequests.push(record);
+        return { data: record, error: null };
+    },
+    updateVideoRequest: async (id, patch) => {
+        await delay(300);
+        store.videoRequests = store.videoRequests.map(v => v.id === id ? { ...v, ...patch } : v);
+        return { data: store.videoRequests.find(v => v.id === id), error: null };
+    },
+    getReadyVideosForService: async (serviceId) => {
+        await delay(150);
+        return { data: store.videoRequests.filter(v => v.service_id === serviceId && v.status === 'ready' && v.video_url), error: null };
+    },
 
     // --- Companies (super admin) ---
     getCompanies: async () => {
@@ -244,7 +336,7 @@ export const api = {
     },
 
     // --- Offer tracking ---
-    logOfferDecision: async ({ technician_id, service_id, visit_id, outcome, revenue, decline_reason, address }) => {
+    logOfferDecision: async ({ technician_id, service_id, visit_id, outcome, revenue, decline_reason, address, customer_initials }) => {
         await delay(500);
         const event = {
             id: `evt_${Date.now()}`,
@@ -254,6 +346,7 @@ export const api = {
             outcome,
             revenue: outcome === 'approved' ? (revenue || 0) : 0,
             decline_reason: outcome === 'declined' ? (decline_reason || null) : null,
+            customer_initials: customer_initials || null,
             timestamp: new Date().toISOString(),
         };
         store.offerEvents.push(event);
@@ -273,6 +366,16 @@ export const api = {
         }
 
         return { data: [event], error: null };
+    },
+    // Approved offers carry $0 until the signed order sets the price; this books it.
+    recordOrderRevenue: async ({ technician_id, visit_id, items }) => {
+        (items || []).forEach(item => {
+            const evt = [...store.offerEvents].reverse().find(e =>
+                e.outcome === 'approved' && e.service_id === item.service_id &&
+                (visit_id ? e.visit_id === visit_id : e.technician_id === technician_id));
+            if (evt) evt.revenue = Number(item.price) || 0;
+        });
+        return { data: null, error: null };
     },
     submitOrder: async (orderDetails) => {
         console.log("Submitting Order:", orderDetails);

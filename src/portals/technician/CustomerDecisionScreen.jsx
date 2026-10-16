@@ -8,6 +8,7 @@ export const CustomerDecisionScreen = ({ service, onDecision }) => {
     const [showDeclineReason, setShowDeclineReason] = useState(false);
     const [declineReason, setDeclineReason] = useState('');
     const [reasons, setReasons] = useState([]);
+    const [initials, setInitials] = useState('');
 
     useEffect(() => {
         api.getDeclineReasons().then(({ data }) => setReasons(data));
@@ -24,7 +25,7 @@ export const CustomerDecisionScreen = ({ service, onDecision }) => {
 
     const handleConfirmDecline = async () => {
         setLoading('declined');
-        await onDecision('declined', declineReason || 'no_interest');
+        await onDecision('declined', declineReason, initials.trim().toUpperCase());
     };
 
     return (
@@ -55,7 +56,7 @@ export const CustomerDecisionScreen = ({ service, onDecision }) => {
                 ) : (
                     <>
                         <h2 className="text-xl font-bold text-gray-900 mb-2">Reason for Declining?</h2>
-                        <p className="text-gray-500 text-sm mb-4">This helps us improve our offerings.</p>
+                        <p className="text-gray-500 text-sm mb-4">Customer: choose a reason and add your initials.</p>
                         <div className="space-y-2 text-left mb-6">
                             {reasons.map(reason => (
                                 <label key={reason.value} className={`flex items-center p-3 rounded-lg cursor-pointer border transition-colors ${declineReason === reason.value ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:bg-gray-50'}`}>
@@ -71,9 +72,17 @@ export const CustomerDecisionScreen = ({ service, onDecision }) => {
                                 </label>
                             ))}
                         </div>
+                        <label htmlFor="customer_initials" className="block text-left text-sm font-medium text-gray-700 mb-1">Customer initials *</label>
+                        <input
+                            id="customer_initials"
+                            value={initials}
+                            onChange={(e) => setInitials(e.target.value.slice(0, 4))}
+                            className="w-full px-4 py-3 rounded-lg bg-gray-100 mb-4 uppercase tracking-widest text-center text-lg"
+                            placeholder="e.g. JW"
+                        />
                         <button
                             onClick={handleConfirmDecline}
-                            disabled={!!loading}
+                            disabled={!!loading || !declineReason || initials.trim().length < 2}
                             className="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg disabled:opacity-50 flex items-center justify-center"
                         >
                             {loading === 'declined' ? <Loader small={true} /> : 'Confirm Decline'}

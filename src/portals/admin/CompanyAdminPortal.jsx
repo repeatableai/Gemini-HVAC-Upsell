@@ -6,6 +6,11 @@ import { ServiceManagementScreen } from './ServiceManagementScreen';
 import { TechnicianManagementScreen } from './TechnicianManagementScreen';
 import { SettingsScreen } from './SettingsScreen';
 import { FollowUpsScreen } from './FollowUpsScreen';
+import { VideoStudioScreen } from '../shared/VideoStudioScreen';
+
+const VideoIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="14" height="12" rx="2" /><path d="m22 8-6 4 6 4V8z" /></svg>
+);
 
 export const CompanyAdminPortal = () => {
     const [currentView, setCurrentView] = useState('dashboard');
@@ -16,6 +21,7 @@ export const CompanyAdminPortal = () => {
         { name: 'Services', icon: <ServiceIcon />, view: 'services' },
         { name: 'Technicians', icon: <UsersIcon />, view: 'technicians' },
         { name: 'Follow-Ups', icon: <ClockIcon />, view: 'followups' },
+        { name: 'Videos', icon: <VideoIcon />, view: 'videos' },
         { name: 'Settings', icon: <SettingsIcon />, view: 'settings' },
     ];
     const renderView = () => {
@@ -24,6 +30,7 @@ export const CompanyAdminPortal = () => {
             case 'services': return <ServiceManagementScreen />;
             case 'technicians': return <TechnicianManagementScreen />;
             case 'followups': return <FollowUpsScreen />;
+            case 'videos': return <VideoStudioScreen mode="company" companyId={user.company_id} requestedBy={user.full_name} />;
             case 'settings': return <SettingsScreen />;
             default: return <DashboardScreen />;
         }

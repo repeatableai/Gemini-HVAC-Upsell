@@ -4,7 +4,58 @@ import { Loader } from '../../components/Loader';
 import { CheckIcon, ChevronRightIcon, XIcon } from '../../components/Icons';
 import { useAuth } from '../../context/AuthContext';
 
-export const ServiceListScreen = ({ onSelectService, approvedItems = [], onOpenOrder, onRemoveItem }) => {
+const OUTCOME_CHIP = {
+    approved: 'bg-green-100 text-green-800',
+    declined: 'bg-red-100 text-red-700',
+};
+
+// The gate: required offers for this visit, and a Close button that stays
+// locked until every one has the customer's decision.
+const VisitPanel = ({ visit, progress, services, approvedCount, onSelectService, onClose, onOpenOrder, closing }) => {
+    const remaining = progress.requiredCount - progress.askedCount;
+    const pct = progress.requiredCount ? Math.round((progress.askedCount / progress.requiredCount) * 100) : 100;
+    return (
+        <div className="mx-4 sm:mx-6 mt-4 bg-white border-2 border-[#004B87] rounded-2xl p-4">
+            <div className="flex flex-wrap justify-between items-start gap-2">
+                <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Current visit</p>
+                    <h2 className="text-lg font-bold text-gray-900">{visit.customer_name} · {visit.visit_type}</h2>
+                    {visit.address && <p className="text-sm text-gray-500">{visit.address}</p>}
+                </div>
+                <p className="text-sm font-semibold text-gray-700 tabular-nums">{progress.askedCount} of {progress.requiredCount} required offers asked</p>
+            </div>
+            <div className="h-3 bg-gray-100 rounded-full mt-3 overflow-hidden">
+                <div className={`h-full ${progress.canClose ? 'bg-green-500' : 'bg-amber-500'}`} style={{ width: `${pct}%` }} />
+            </div>
+            <ul className="mt-3 space-y-2">
+                {progress.required.map(r => {
+                    const svc = services.find(s => s.id === r.service_id);
+                    return (
+                        <li key={r.service_id} className="flex flex-wrap items-center justify-between gap-2 bg-gray-50 rounded-lg px-3 py-2">
+                            <span className="font-medium text-gray-800 text-sm">{r.name}</span>
+                            {r.outcome ? (
+                                <span className={`px-2 py-1 rounded-full text-xs font-semibold capitalize ${OUTCOME_CHIP[r.outcome]}`}>{r.outcome}</span>
+                            ) : (
+                                svc && <button onClick={() => onSelectService(svc)} className="text-sm font-semibold text-white bg-[#004B87] hover:bg-blue-800 px-3 py-1 rounded-lg">Present now</button>
+                            )}
+                        </li>
+                    );
+                })}
+            </ul>
+            <button
+                onClick={approvedCount > 0 ? onOpenOrder : onClose}
+                disabled={!progress.canClose || closing}
+                className="w-full mt-4 font-bold py-3 rounded-lg text-white bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed"
+            >
+                {!progress.canClose
+                    ? `Locked: present ${remaining} more required offer${remaining === 1 ? '' : 's'} to close`
+                    : approvedCount > 0 ? 'Create order and close visit' : 'Close visit'}
+            </button>
+        </div>
+    );
+};
+
+export const ServiceListScreen = ({ onSelectService, approvedItems = [], onOpenOrder, onRemoveItem, visit, progress, onCloseVisit, closing }) => {
     const [services, setServices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [seasonalConfig, setSeasonalConfig] = useState({});
@@ -64,7 +115,19 @@ export const ServiceListScreen = ({ onSelectService, approvedItems = [], onOpenO
                 </div>
             </div>
 
-            {/* What to Look For Checklist */}
+            {visit && progress ? (
+                <VisitPanel
+                    visit={visit}
+                    progress={progress}
+                    services={services}
+                    approvedCount={approvedItems.length}
+                    onSelectService={onSelectService}
+                    onClose={onCloseVisit}
+                    onOpenOrder={onOpenOrder}
+                    closing={closing}
+                />
+            ) : (
+            /* What to Look For Checklist */
             <div className="mx-4 sm:mx-6 mt-4">
                 <button
                     onClick={() => setShowChecklist(!showChecklist)}
@@ -124,6 +187,7 @@ export const ServiceListScreen = ({ onSelectService, approvedItems = [], onOpenO
                     </div>
                 )}
             </div>
+            )}
 
             {/* Order Cart Banner */}
             {approvedItems.length > 0 && (
@@ -152,9 +216,12 @@ export const ServiceListScreen = ({ onSelectService, approvedItems = [], onOpenO
                     </div>
                     <button
                         onClick={onOpenOrder}
-                        className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg text-base transition-colors"
+                        disabled={visit && progress && !progress.canClose}
+                        className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg text-base transition-colors disabled:bg-gray-300 disabled:text-gray-600"
                     >
-                        Create Binding Order ({approvedItems.length} item{approvedItems.length > 1 ? 's' : ''})
+                        {visit && progress && !progress.canClose
+                            ? 'Present every required offer before the order'
+                            : `Create Binding Order (${approvedItems.length} item${approvedItems.length > 1 ? 's' : ''})`}
                     </button>
                 </div>
             )}
