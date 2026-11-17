@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../api/mockApi';
 import { LogOutIcon, CheckIcon } from '../../components/Icons';
 import { ServiceListScreen } from './ServiceListScreen';
 import { ServiceDetailContainer } from './ServiceDetailContainer';
 import { OrderFormScreen } from './OrderFormScreen';
+import { StartVisitScreen } from './StartVisitScreen';
+import { SuccessScreen } from '../../components/SuccessScreen';
+import { TopBar } from '../../design/TopBar';
 
 // =========================================================================
 // ORDER RECEIPT SCREEN — shown after submission, simulates email to customer
@@ -113,6 +116,7 @@ const OrderReceiptScreen = ({ order, onDone }) => {
                     <button
                         onClick={onDone}
                         className="w-full bg-[#004B87] hover:bg-blue-800 text-white font-bold py-3 px-4 rounded-lg text-lg transition-colors"
+                        data-help="Finishes this order, closes the visit and takes you back to start the next one."
                     >
                         Done — Return to Services
                     </button>
@@ -127,7 +131,34 @@ export const TechnicianPortal = () => {
     const [approvedItems, setApprovedItems] = useState([]);
     const [view, setView] = useState('list');
     const [completedOrder, setCompletedOrder] = useState(null);
+    const [visit, setVisit] = useState(null);
+    const [progress, setProgress] = useState(null);
+    const [closing, setClosing] = useState(false);
+    const [closedSummary, setClosedSummary] = useState(null);
     const { user, logout } = useAuth();
+
+    const refreshProgress = useCallback(async (visitId) => {
+        const { data } = await api.getVisitProgress(visitId);
+        setProgress(data);
+    }, []);
+
+    useEffect(() => {
+        if (visit && view === 'list') refreshProgress(visit.id);
+    }, [visit, view, refreshProgress]);
+
+    const finishVisit = async () => {
+        setClosing(true);
+        const { data, error } = await api.closeVisit(visit.id);
+        setClosing(false);
+        if (error) { setProgress(data); return false; }
+        setClosedSummary({ customer: visit.customer_name, asked: data.askedCount, required: data.requiredCount });
+        setVisit(null);
+        setProgress(null);
+        setApprovedItems([]);
+        setView('closed');
+        setTimeout(() => setView('list'), 2200);
+        return true;
+    };
 
     const handleSelectService = (service) => {
         setCurrentService(service);
@@ -175,6 +206,7 @@ export const TechnicianPortal = () => {
 
     const handleOrderSubmit = async (orderDetails) => {
         const result = await api.submitOrder(orderDetails);
+        await api.recordOrderRevenue({ technician_id: user.id, visit_id: visit?.id, items: orderDetails.items });
         setCompletedOrder({
             ...orderDetails,
             order_id: result.data?.[0]?.id || `ORD-${Date.now()}`,
@@ -185,23 +217,22 @@ export const TechnicianPortal = () => {
         setView('receipt');
     };
 
-    const AppHeader = () => (
-        <header className="bg-white shadow-sm p-4 flex justify-between items-center sticky top-0 z-10" style={{ backgroundColor: user.company?.brand_color, color: 'white' }}>
-            {user.company.logo_url
-                ? <img src={user.company.logo_url} alt="Company Logo" className="h-8 object-contain" />
-                : <span className="font-bold text-lg">{user.company.name}</span>
-            }
-            <div className="flex items-center">
-                <span className="mr-4 hidden sm:inline">{user.full_name}</span>
-                <button onClick={logout} className="p-2 hover:bg-white/20 rounded-full transition-colors"><LogOutIcon /></button>
-            </div>
-        </header>
+    // One top bar on every technician screen: Repeatable AI logo, the company, How to use this, theme.
+    const shell = (content) => (
+        <div className="rh-shell min-h-screen bg-gray-50">
+            <TopBar screen="technician" name={user.company?.name} logoUrl={user.company?.logo_url} brand={user.company?.brand_color}>
+                <span className="rh-user">{user.full_name}</span>
+                <button onClick={logout} className="rh-icon-btn" aria-label="Log out" data-help="Signs you out and returns to the login screen."><LogOutIcon /></button>
+            </TopBar>
+            {content}
+        </div>
     );
 
     if (view === 'detail' && currentService) {
-        return (
+        return shell(
             <ServiceDetailContainer
                 service={currentService}
+                visit={visit}
                 onBack={() => { setCurrentService(null); setView('list'); }}
                 onApproved={handleServiceApproved}
                 onDeclined={handleServiceDeclined}
@@ -210,7 +241,7 @@ export const TechnicianPortal = () => {
     }
 
     if (view === 'order') {
-        return (
+        return shell(
             <OrderFormScreen
                 approvedItems={approvedItems}
                 onUpdateItemPrice={handleUpdateItemPrice}
@@ -222,29 +253,38 @@ export const TechnicianPortal = () => {
     }
 
     if (view === 'receipt' && completedOrder) {
-        return (
+        return shell(
             <OrderReceiptScreen
                 order={completedOrder}
-                onDone={() => {
+                onDone={async () => {
                     setApprovedItems([]);
                     setCompletedOrder(null);
-                    setView('list');
+                    if (visit) { await finishVisit(); } else { setView('list'); }
                 }}
             />
         );
     }
 
-    return (
-        <div className="min-h-screen bg-gray-50">
-            <AppHeader />
+    if (view === 'closed' && closedSummary) {
+        return shell(<SuccessScreen title="Visit closed" message={`${closedSummary.customer}: ${closedSummary.asked} of ${closedSummary.required} required offers asked.`} />);
+    }
+
+    return shell(
             <main>
-                <ServiceListScreen
-                    onSelectService={handleSelectService}
-                    approvedItems={approvedItems}
-                    onOpenOrder={handleOpenOrder}
-                    onRemoveItem={handleRemoveItem}
-                />
+                {!visit ? (
+                    <StartVisitScreen user={user} onStarted={(v) => { setVisit(v); setView('list'); }} />
+                ) : (
+                    <ServiceListScreen
+                        onSelectService={handleSelectService}
+                        approvedItems={approvedItems}
+                        onOpenOrder={handleOpenOrder}
+                        onRemoveItem={handleRemoveItem}
+                        visit={visit}
+                        progress={progress}
+                        onCloseVisit={finishVisit}
+                        closing={closing}
+                    />
+                )}
             </main>
-        </div>
     );
 };

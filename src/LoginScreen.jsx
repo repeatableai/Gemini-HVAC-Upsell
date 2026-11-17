@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useAuth } from './context/AuthContext';
 import { Loader } from './components/Loader';
+import { TopBar } from './design/TopBar';
+import { IS_LIVE } from './api/mockApi';
 
 export const LoginScreen = () => {
     const { login } = useAuth();
@@ -15,6 +17,8 @@ export const LoginScreen = () => {
         if (error) { setError(error.message); setLoading(false); }
     };
     return (
+        <div className="rh-shell min-h-screen bg-gray-50">
+        <TopBar screen="login" name="Upseller Platform" sub="ServicePro HVAC demo" />
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
             <div className="w-full max-w-sm">
                 <div className="text-center mb-6">
@@ -27,19 +31,26 @@ export const LoginScreen = () => {
                     <form onSubmit={handleLogin} className="space-y-4">
                         <div>
                             <label className="block text-gray-600 text-sm font-medium mb-2" htmlFor="email">Email</label>
-                            <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full px-4 py-3 rounded-lg bg-gray-100" placeholder="admin@demo.com or tech@demo.com"/>
+                            <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full px-4 py-3 rounded-lg bg-gray-100" placeholder="tech@, admin@ or superadmin@demo.com" data-help="Type your work email. In the demo, the email decides which portal opens."/>
                         </div>
                         <div>
                             <label className="block text-gray-600 text-sm font-medium mb-2" htmlFor="password">Password</label>
-                            <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full px-4 py-3 rounded-lg bg-gray-100" placeholder="any password"/>
+                            <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full px-4 py-3 rounded-lg bg-gray-100" placeholder={IS_LIVE ? "Password" : "any password"} data-help="Type your password. The demo accepts any password."/>
                         </div>
                         {error && <p className="text-red-500 text-xs text-center">{error}</p>}
-                        <button type="submit" disabled={loading} className="w-full bg-[#004B87] hover:bg-blue-800 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center h-12">
+                        <button type="submit" disabled={loading} className="w-full bg-[#004B87] hover:bg-blue-800 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center h-12" data-help="Signs you in and opens the portal for your role.">
                             {loading ? <Loader small={true} /> : 'Sign In'}
                         </button>
                     </form>
+                    <div className="mt-6 pt-4 border-t border-gray-100 text-xs text-gray-500 space-y-1">
+                        <p className="font-semibold text-gray-600">{IS_LIVE ? 'Demo logins (password from your Repeatable contact)' : 'Demo logins (any password)'}</p>
+                        <p>Technician: tech@demo.com</p>
+                        <p>Company admin: admin@demo.com</p>
+                        <p>Super admin: superadmin@demo.com</p>
+                    </div>
                 </div>
             </div>
+        </div>
         </div>
     );
 };

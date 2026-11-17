@@ -94,7 +94,7 @@ export const FollowUpsScreen = () => {
                                                 </span>
                                             </td>
                                             <td className="p-4">
-                                                <button onClick={() => handleDismiss(fu.id)} className="text-gray-400 hover:text-red-500 transition-colors" title="Dismiss">
+                                                <button onClick={() => handleDismiss(fu.id)} className="text-gray-400 hover:text-red-500 transition-colors" aria-label="Dismiss" data-help={`Dismisses the follow-up for ${fu.service_name} at ${fu.address}.`}>
                                                     <XIcon />
                                                 </button>
                                             </td>
@@ -122,8 +122,9 @@ export const FollowUpsScreen = () => {
                             onKeyDown={(e) => e.key === 'Enter' && handleAddressSearch()}
                             className="flex-1 px-4 py-3 rounded-lg bg-gray-100 border border-gray-200"
                             placeholder="Enter address to search..."
+                            data-help="Type part of an address, then press Enter or Search."
                         />
-                        <button onClick={handleAddressSearch} disabled={searchLoading} className="px-6 py-3 bg-[#004B87] text-white font-semibold rounded-lg hover:bg-blue-800 flex items-center gap-2 disabled:bg-blue-300">
+                        <button onClick={handleAddressSearch} disabled={searchLoading} className="px-6 py-3 bg-[#004B87] text-white font-semibold rounded-lg hover:bg-blue-800 flex items-center gap-2 disabled:bg-blue-300" data-help="Shows each offer made at matching addresses, with outcome, technician and date.">
                             {searchLoading ? <Loader small={true} /> : <><SearchIcon /> Search</>}
                         </button>
                     </div>

@@ -37,6 +37,22 @@ export const MOCK_TECH_USER = {
 // =========================================================================
 export const store = {};
 
+// Super admin — platform owner who builds out companies
+export const MOCK_SUPER_ADMIN_USER = {
+    id: 'super_admin_1',
+    full_name: 'Platform Admin',
+    email: 'superadmin@demo.com',
+    role: 'super_admin',
+    company: { id: 'platform', name: 'Upseller Platform', logo_url: '', brand_color: '#1F2937' },
+};
+
+// Companies on the platform. Only ServicePro HVAC carries live demo data; the others are [SYN] examples.
+store.companies = [
+    { id: 'comp_sp_123', name: 'ServicePro HVAC', website: 'servicepro-hvac.example', industry: 'HVAC', brand_color: '#004B87', admin_name: 'Admin Manager', admin_email: 'admin@demo.com', technicians: 5, status: 'active', created_at: '2026-05-21T00:00:00Z' },
+    { id: 'comp_syn_1', name: 'Coastal Climate Pros [SYN]', website: 'coastalclimate.example', industry: 'HVAC', brand_color: '#0F766E', admin_name: 'Dana Ruiz [SYN]', admin_email: 'dana@coastalclimate.example', technicians: 8, status: 'active', created_at: '2026-08-02T00:00:00Z' },
+    { id: 'comp_syn_2', name: 'Brightwater Mechanical [SYN]', website: 'brightwatermech.example', industry: 'Plumbing', brand_color: '#7C3AED', admin_name: 'Lee Park [SYN]', admin_email: 'lee@brightwatermech.example', technicians: 12, status: 'onboarding', created_at: '2026-10-01T00:00:00Z' },
+];
+
 // Additional technician users for multi-tech demo
 store.technicians = [
     { id: 'tech_123', full_name: 'John Doe', email: 'john.doe@demo.com', status: 'active' },
@@ -44,6 +60,7 @@ store.technicians = [
     { id: 'tech_789', full_name: 'Mike Rivera', email: 'mike.r@demo.com', status: 'active' },
     { id: 'tech_012', full_name: 'Sarah Chen', email: 'sarah.c@demo.com', status: 'active' },
     { id: 'tech_345', full_name: 'Tom Bradley', email: 'tom.b@demo.com', status: 'invited' },
+    { id: 'tech_user_sp', full_name: 'Field Technician (demo login)', email: 'tech@demo.com', status: 'active' },
 ];
 
 store.services = [
@@ -405,6 +422,7 @@ store.config = {
     target_approval_rate: 25,
     flag_underperformers: true,
     monthly_revenue_goal: 40000,
+    required_offers_per_visit: 4,
     notification_preferences: {
         email_on_approve: true,
         email_on_decline: false,
@@ -412,3 +430,55 @@ store.config = {
         underperformer_alert: true,
     }
 };
+
+
+// =========================================================================
+// VIDEO REQUESTS — dictated by an admin, produced by the 3D movie pipeline
+// (Video-Production project, HyperFrames product-launch-video route)
+// =========================================================================
+export const VIDEO_PURPOSES = [
+    { value: 'customer_offer', label: 'Customer-facing: plays during an offer' },
+    { value: 'tech_training', label: 'Technician training' },
+    { value: 'marketing', label: 'Marketing / launch' },
+];
+
+store.videoRequests = [
+    {
+        id: 'vid_askfirst_launch',
+        company_id: 'comp_sp_123',
+        title: 'AskFirst launch movie (light theme)',
+        purpose: 'marketing',
+        service_id: '',
+        script: "Multiple documented, cited studies reveal: a full 35% of buyers will buy something else at the point of purchase \u2014 if they're simply asked.\n\nNationwide averages for technicians and salespeople in the services business \u2014 HVAC chief among them \u2014 show the ask happens on average only 11.5% of the time that they are in front of a buying customer. The demand is already there. The ask is not.\n\nThe problem in your business is not that customers won't buy the add-on. The problem is that only about one in nine of them is being asked.\n\nThink about what just happened at the rental counter. You didn't want the insurance. You declined it. But the agent had to ask. The system wouldn't let her close out the contract without offering it. That single piece of friction \u2014 the forced ask \u2014 is why rental car companies generate $8 billion a year in ancillary revenue from products customers don't technically need.\n\nAskFirst is the system that does for your techs what the rental counter does for the agent. The technician cannot close the ticket \u2014 cannot collect payment, cannot leave the house, cannot move to the next call \u2014 without confirming that the four upsell prompts were offered to the customer. No menu. No skip button. No human willpower required.\n\nTop \"selling techs\" generate $700K\u2013$1M+ in annual revenue per head. Your average tech generates $250K\u2013$450K. The gap between them is not skill. It's not personality. It's the ask. Selling techs ask every house. Average techs ask when they remember.",
+        verbatim: true,
+        length_seconds: 90,
+        aspect: '16:9',
+        look: '3D, maxed out',
+        voice: 'Confident American male narrator (ElevenLabs)',
+        music: 'High-impact cinematic score, 12 LU under the voice',
+        status: 'in_production',
+        video_url: '',
+        requested_by: 'Kevin Connor',
+        created_at: '2026-10-16T17:50:00Z',
+        production_folder: 'Video-Production/02-working/askfirst-launch-video-light/',
+    },
+    {
+        id: 'vid_syn_surge',
+        company_id: 'comp_sp_123',
+        title: 'Surge protector in 30 seconds [SYN]',
+        purpose: 'customer_offer',
+        service_id: 'svc_002',
+        script: 'Your system runs on a circuit board that costs more to replace than this whole visit. One power surge can fry it. A surge protector takes twenty minutes to install and guards that board every day after. [SYN]',
+        verbatim: true,
+        length_seconds: 30,
+        aspect: '16:9',
+        look: '3D, maxed out',
+        voice: 'Confident American male narrator (ElevenLabs)',
+        music: 'Calm, confident bed',
+        status: 'requested',
+        video_url: '',
+        requested_by: 'Admin Manager',
+        created_at: '2026-10-16T17:40:00Z',
+        production_folder: '',
+    },
+];

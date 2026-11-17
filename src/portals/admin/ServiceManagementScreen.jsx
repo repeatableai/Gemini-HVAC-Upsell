@@ -45,7 +45,7 @@ export const ServiceManagementScreen = () => {
                     <h1 className="text-3xl font-bold text-gray-800">Service Catalog</h1>
                     <p className="text-gray-500">Manage the services your technicians can offer across all departments.</p>
                 </div>
-                <button onClick={openModalForNew} className="flex items-center bg-[#004B87] text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-800 transition-colors">
+                <button onClick={openModalForNew} className="flex items-center bg-[#004B87] text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-800 transition-colors" data-help="Opens a form to add a new service for technicians to offer.">
                     <PlusIcon /> <span className="ml-2">Add Service</span>
                 </button>
             </div>
@@ -72,14 +72,15 @@ export const ServiceManagementScreen = () => {
                                 <td className="p-4 text-gray-600">{service.price_range}</td>
                                 <td className="p-4">
                                     <button onClick={() => handleToggleActive(service)}
+                                        data-help={service.is_active !== false ? `Pauses ${service.name} so technicians no longer see it.` : `Makes ${service.name} active again for technicians.`}
                                         className={`px-2 py-1 text-xs font-semibold rounded-full cursor-pointer ${service.is_active !== false ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-600'}`}>
                                         {service.is_active !== false ? 'Active' : 'Paused'}
                                     </button>
                                 </td>
                                 <td className="p-4">
                                     <div className="flex items-center gap-3">
-                                        <button onClick={() => openModalForEdit(service)} className="text-blue-600 font-semibold hover:underline text-sm">Edit</button>
-                                        <button onClick={() => handleDelete(service)} className="text-red-500 hover:text-red-700"><TrashIcon /></button>
+                                        <button onClick={() => openModalForEdit(service)} className="text-blue-600 font-semibold hover:underline text-sm" data-help={`Opens ${service.name} to change its price, benefits or script.`}>Edit</button>
+                                        <button onClick={() => handleDelete(service)} className="text-red-500 hover:text-red-700" aria-label={`Delete ${service.name}`} data-help={`Deletes ${service.name}, after you confirm.`}><TrashIcon /></button>
                                     </div>
                                 </td>
                             </tr>

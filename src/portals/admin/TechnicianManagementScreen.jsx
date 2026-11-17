@@ -71,12 +71,12 @@ const TechProfileModal = ({ tech, onClose }) => {
                             <span className={`px-2 py-1 text-xs font-semibold rounded-full ${tech.status === 'active' ? 'bg-green-100 text-green-800' : tech.status === 'invited' ? 'bg-blue-100 text-blue-800' : 'bg-gray-200 text-gray-600'}`}>
                                 {tech.status}
                             </span>
-                            <span className={`px-2 py-1 text-xs font-semibold rounded-full ${belowGoal ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                            <span className={`px-2 py-1 text-xs font-semibold rounded-full ${belowGoal ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-700'}`}>
                                 {belowGoal ? 'Below Goal' : 'On Track'}
                             </span>
                         </div>
                     </div>
-                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700"><XIcon /></button>
+                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700" aria-label="Close" data-help="Closes this profile and returns to the technician list."><XIcon /></button>
                 </div>
 
                 <div className="p-6 space-y-6">
@@ -159,8 +159,8 @@ const TechProfileModal = ({ tech, onClose }) => {
                         <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Daily Activity (Last 30 Days)</h3>
                         <ResponsiveContainer width="100%" height={180}>
                             <BarChart data={dailyData}>
-                                <XAxis dataKey="day" tick={{ fontSize: 10 }} interval={4} />
-                                <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
+                                <XAxis dataKey="day" tick={{ fontSize: 12 }} interval={4} />
+                                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
                                 <Tooltip />
                                 <Bar dataKey="approved" stackId="a" fill="#10B981" name="Approved" />
                                 <Bar dataKey="declined" stackId="a" fill="#EF4444" name="Declined" />
@@ -227,20 +227,20 @@ const EditTechModal = ({ tech, onSave, onClose }) => {
             <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-bold">Edit Technician</h2>
-                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700"><XIcon /></button>
+                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700" aria-label="Close" data-help="Closes the edit form without saving."><XIcon /></button>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Full Name</label>
-                        <input value={formData.full_name} onChange={e => setFormData(prev => ({ ...prev, full_name: e.target.value }))} type="text" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                        <input value={formData.full_name} onChange={e => setFormData(prev => ({ ...prev, full_name: e.target.value }))} type="text" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" data-help="The technician's full name." />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Email</label>
-                        <input value={formData.email} onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))} type="email" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                        <input value={formData.email} onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))} type="email" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" data-help="The technician's email address." />
                     </div>
                     <div className="flex justify-end gap-3 pt-2">
-                        <button type="button" onClick={onClose} className="bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300">Cancel</button>
-                        <button type="submit" className="bg-[#004B87] text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-800">Save</button>
+                        <button type="button" onClick={onClose} className="bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300" data-help="Closes the edit form without saving.">Cancel</button>
+                        <button type="submit" className="bg-[#004B87] text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-800" data-help="Saves the new name and email.">Save</button>
                     </div>
                 </form>
             </div>
@@ -321,6 +321,7 @@ export const TechnicianManagementScreen = () => {
                                             <button
                                                 onClick={() => setViewingTech(tech)}
                                                 className="font-medium text-blue-600 hover:text-blue-800 hover:underline text-left"
+                                                data-help={`Opens ${tech.full_name}'s 30-day and 90-day results.`}
                                             >
                                                 {tech.full_name}
                                             </button>
@@ -328,15 +329,16 @@ export const TechnicianManagementScreen = () => {
                                         <td className="p-4 text-gray-600">{tech.email}</td>
                                         <td className="p-4">
                                             <button onClick={() => handleToggleStatus(tech)}
+                                                data-help={tech.status === 'active' ? `Switches ${tech.full_name} to inactive.` : `Switches ${tech.full_name} to active.`}
                                                 className={`px-2 py-1 text-xs font-semibold rounded-full cursor-pointer ${statusColors[tech.status] || statusColors.inactive}`}>
                                                 {tech.status}
                                             </button>
                                         </td>
                                         <td className="p-4">
                                             <div className="flex items-center gap-3">
-                                                <button onClick={() => setViewingTech(tech)} className="text-sm text-blue-600 font-semibold hover:underline">View</button>
-                                                <button onClick={() => setEditingTech(tech)} className="text-blue-600 hover:text-blue-800"><EditIcon /></button>
-                                                <button onClick={() => handleDelete(tech)} className="text-red-500 hover:text-red-700"><TrashIcon /></button>
+                                                <button onClick={() => setViewingTech(tech)} className="text-sm text-blue-600 font-semibold hover:underline" data-help={`Opens ${tech.full_name}'s 30-day and 90-day results.`}>View</button>
+                                                <button onClick={() => setEditingTech(tech)} className="text-blue-600 hover:text-blue-800" aria-label={`Edit ${tech.full_name}`} data-help={`Edits ${tech.full_name}'s name and email.`}><EditIcon /></button>
+                                                <button onClick={() => handleDelete(tech)} className="text-red-500 hover:text-red-700" aria-label={`Delete ${tech.full_name}`} data-help={`Deletes ${tech.full_name} and their data, after you confirm.`}><TrashIcon /></button>
                                             </div>
                                         </td>
                                     </tr>
@@ -351,13 +353,13 @@ export const TechnicianManagementScreen = () => {
                         <form onSubmit={handleInvite} className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Full Name</label>
-                                <input value={inviteName} onChange={e => setInviteName(e.target.value)} type="text" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                                <input value={inviteName} onChange={e => setInviteName(e.target.value)} type="text" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" data-help="The new technician's full name." />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Email Address</label>
-                                <input value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} type="email" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+                                <input value={inviteEmail} onChange={e => setInviteEmail(e.target.value)} type="email" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" data-help="The email the invite goes to." />
                             </div>
-                            <button type="submit" className="w-full bg-[#004B87] text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-800">Send Invite</button>
+                            <button type="submit" className="w-full bg-[#004B87] text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-800" data-help="Adds the technician as invited and sends the invite to their email.">Send Invite</button>
                         </form>
                     </div>
                 </div>

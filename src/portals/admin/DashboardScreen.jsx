@@ -28,7 +28,7 @@ const TechnicianDetailModal = ({ tech, onClose }) => {
             <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl font-bold text-gray-800">{tech.name} — Performance Detail</h2>
-                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700"><XIcon /></button>
+                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700" aria-label="Close" data-help="Closes this technician's detail and returns to the dashboard."><XIcon /></button>
                 </div>
 
                 {!detail ? (
@@ -113,7 +113,7 @@ const Leaderboard = ({ byTechnician, config }) => {
     const rankLabels = ['', '1st', '2nd', '3rd'];
 
     const SortHeader = ({ label, field, className = '' }) => (
-        <th onClick={() => handleSort(field)} className={`p-3 font-semibold text-gray-600 cursor-pointer hover:text-blue-600 select-none ${className}`}>
+        <th onClick={() => handleSort(field)} data-help={`Sorts the leaderboard by ${label}. Click again to flip the order.`} className={`p-3 font-semibold text-gray-600 cursor-pointer hover:text-blue-600 select-none ${className}`}>
             {label} {sortKey === field ? (sortDir === 'desc' ? ' \u2193' : ' \u2191') : ''}
         </th>
     );
@@ -147,7 +147,8 @@ const Leaderboard = ({ byTechnician, config }) => {
                             return (
                                 <tr key={tech.technician_id}
                                     onClick={() => setSelectedTech(tech)}
-                                    className={`border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${belowGoal ? 'bg-red-50/50' : ''}`}>
+                                    data-help={`Opens ${tech.name}'s results: visits, offers, close rate, revenue and recent activity.`}
+                                    className={`border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors ${belowGoal ? 'bg-amber-50' : ''}`}>
                                     <td className={`p-3 font-bold ${rankColors[rank] || 'text-gray-400'}`}>
                                         {rank <= 3 ? rankLabels[rank] : `#${rank}`}
                                     </td>
@@ -159,7 +160,7 @@ const Leaderboard = ({ byTechnician, config }) => {
                                     <td className="p-3">{closeRate.toFixed(0)}%</td>
                                     <td className="p-3 font-bold">${tech.revenue.toLocaleString()}</td>
                                     <td className="p-3">
-                                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${belowGoal ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${belowGoal ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-700'}`}>
                                             {belowGoal ? 'Below Goal' : 'On Track'}
                                         </span>
                                     </td>
@@ -233,7 +234,7 @@ export const DashboardScreen = () => {
                 </div>
                 <div className="flex bg-white rounded-lg shadow p-1 gap-1">
                     {periods.map(p => (
-                        <button key={p.value} onClick={() => setPeriod(p.value)}
+                        <button key={p.value} onClick={() => setPeriod(p.value)} aria-pressed={period === p.value} data-help={`Shows the dashboard for ${p.value === 365 ? 'all time' : `the last ${p.value} days`}.`}
                             className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${period === p.value ? 'bg-[#004B87] text-white' : 'text-gray-600 hover:bg-gray-100'}`}>
                             {p.label}
                         </button>
@@ -265,7 +266,12 @@ export const DashboardScreen = () => {
             )}
 
             {/* Top stat cards */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+                <div className="bg-amber-50 border border-amber-200 p-5 rounded-xl shadow">
+                    <h3 className="text-amber-800 text-sm font-semibold">Ask Rate</h3>
+                    <p className="text-3xl font-bold text-amber-700 mt-1">{(stats.askRate * 100).toFixed(0)}%</p>
+                    <p className="text-xs text-amber-700 mt-1">{stats.askedVisits} of {stats.visitCount} visits had an offer</p>
+                </div>
                 <div className="bg-white p-5 rounded-xl shadow">
                     <h3 className="text-gray-500 text-sm font-semibold">Total Offers</h3>
                     <p className="text-3xl font-bold mt-1">{stats.totalPresented}</p>
@@ -286,7 +292,7 @@ export const DashboardScreen = () => {
                 <div className="bg-red-50 border border-red-200 p-5 rounded-xl shadow">
                     <h3 className="text-red-600 text-sm font-semibold">Left on the Table</h3>
                     <p className="text-3xl font-bold text-red-600 mt-1">${stats.lostRevenue?.toLocaleString() || 0}</p>
-                    <p className="text-xs text-red-500 mt-1">Est. revenue from declines</p>
+                    <p className="text-xs text-gray-600 mt-1">Est. revenue from declines</p>
                 </div>
             </div>
 

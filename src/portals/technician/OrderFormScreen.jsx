@@ -92,7 +92,7 @@ export const OrderFormScreen = ({ approvedItems, onUpdateItemPrice, onRemoveItem
             <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-xl w-full max-w-2xl">
                 <div className="flex justify-between items-center mb-4">
                     <h1 className="text-2xl font-bold text-gray-800">Create Binding Order</h1>
-                    <button onClick={onBack} className="text-gray-500 hover:text-gray-700"><XIcon /></button>
+                    <button onClick={onBack} className="text-gray-500 hover:text-gray-700" aria-label="Close the order form" data-help="Closes the order form and goes back to the visit. Nothing is submitted."><XIcon /></button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4 max-h-[80vh] overflow-y-auto pr-2">
@@ -125,10 +125,11 @@ export const OrderFormScreen = ({ approvedItems, onUpdateItemPrice, onRemoveItem
                                                     min={item.min_price}
                                                     max={item.max_price}
                                                     className="w-24 text-sm font-semibold text-gray-700 bg-white border border-gray-300 px-2 py-1.5 rounded-lg text-right"
+                                                    data-help={`Sets the final price for ${item.service_name}, between $${item.min_price} and $${item.max_price}.`}
                                                 />
                                             </div>
                                         )}
-                                        <button type="button" onClick={() => onRemoveItem(idx)} className="text-gray-400 hover:text-red-500 ml-1">
+                                        <button type="button" onClick={() => onRemoveItem(idx)} className="text-gray-400 hover:text-red-500 ml-1" aria-label={`Remove ${item.service_name}`} data-help={`Takes ${item.service_name} out of this order.`}>
                                             <TrashIcon />
                                         </button>
                                     </div>
@@ -142,7 +143,7 @@ export const OrderFormScreen = ({ approvedItems, onUpdateItemPrice, onRemoveItem
                     </div>
 
                     <div className="flex justify-center">
-                        <button type="button" onClick={onBack} className="text-blue-600 text-sm font-semibold hover:underline">
+                        <button type="button" onClick={onBack} className="text-blue-600 text-sm font-semibold hover:underline" data-help="Goes back to the visit to present more services. The order stays as it is.">
                             &larr; Add more services to this order
                         </button>
                     </div>
@@ -161,8 +162,9 @@ export const OrderFormScreen = ({ approvedItems, onUpdateItemPrice, onRemoveItem
                                     className="flex-1 px-4 py-2 rounded-lg bg-white border border-blue-300"
                                     placeholder="Search by name or phone..."
                                     onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleCustomerLookup())}
+                                    data-help={`Type a customer's name or phone to find them in ${accountingLabel}.`}
                                 />
-                                <button type="button" onClick={handleCustomerLookup} disabled={lookupLoading} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-1">
+                                <button type="button" onClick={handleCustomerLookup} disabled={lookupLoading} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-1" data-help={`Looks the customer up in ${accountingLabel} and fills in their details.`}>
                                     {lookupLoading ? <Loader small={true} /> : <><SearchIcon /> Search</>}
                                 </button>
                             </div>
@@ -178,26 +180,26 @@ export const OrderFormScreen = ({ approvedItems, onUpdateItemPrice, onRemoveItem
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-gray-600 text-sm font-medium mb-2" htmlFor="customerName">Customer Name</label>
-                            <input id="customerName" name="customer_name" type="text" value={formData.customer_name} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg bg-gray-100" required />
+                            <input id="customerName" name="customer_name" type="text" value={formData.customer_name} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg bg-gray-100" required data-help="The customer's full name for the order. Required." />
                         </div>
                         <div>
                             <label className="block text-gray-600 text-sm font-medium mb-2" htmlFor="customerEmail">Customer Email</label>
-                            <input id="customerEmail" name="customer_email" type="email" value={formData.customer_email} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg bg-gray-100" required />
+                            <input id="customerEmail" name="customer_email" type="email" value={formData.customer_email} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg bg-gray-100" required data-help="The customer's email; the receipt names it. Required." />
                         </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-gray-600 text-sm font-medium mb-2" htmlFor="customerPhone">Customer Phone</label>
-                            <input id="customerPhone" name="customer_phone" type="tel" value={formData.customer_phone} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg bg-gray-100" required />
+                            <input id="customerPhone" name="customer_phone" type="tel" value={formData.customer_phone} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg bg-gray-100" required data-help="The customer's phone number. Required." />
                         </div>
                         <div>
                             <label className="block text-gray-600 text-sm font-medium mb-2" htmlFor="job_id">Original Job ID / WO#</label>
-                            <input id="job_id" name="job_id" type="text" value={formData.job_id} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg bg-gray-100" />
+                            <input id="job_id" name="job_id" type="text" value={formData.job_id} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg bg-gray-100" data-help="The original job or work-order number, if there is one." />
                         </div>
                     </div>
                     <div>
                         <label className="block text-gray-600 text-sm font-medium mb-2" htmlFor="service_address">Service Address</label>
-                        <input id="service_address" name="service_address" type="text" value={formData.service_address} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg bg-gray-100" placeholder="Street, City, State, Zip" required />
+                        <input id="service_address" name="service_address" type="text" value={formData.service_address} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg bg-gray-100" placeholder="Street, City, State, Zip" required data-help="Where the work happens. Typing it shows earlier offers at this address. Required." />
                         {/* Address History */}
                         {addressHistory.length > 0 && (
                             <div className="mt-2 bg-amber-50 border border-amber-200 rounded-lg p-3">
@@ -221,7 +223,7 @@ export const OrderFormScreen = ({ approvedItems, onUpdateItemPrice, onRemoveItem
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-gray-600 text-sm font-medium mb-2" htmlFor="payment_method">Payment Method</label>
-                            <select id="payment_method" name="payment_method" value={formData.payment_method} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg bg-gray-100 appearance-none">
+                            <select id="payment_method" name="payment_method" value={formData.payment_method} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg bg-gray-100 appearance-none" data-help="How the customer will pay for this work.">
                                 <option>Credit Card on File</option>
                                 <option>Financing</option>
                                 <option>Pay at Time of Service</option>
@@ -230,7 +232,7 @@ export const OrderFormScreen = ({ approvedItems, onUpdateItemPrice, onRemoveItem
                         </div>
                         <div>
                             <label className="block text-gray-600 text-sm font-medium mb-2" htmlFor="notes">Technician Notes</label>
-                            <textarea id="notes" name="notes" rows="2" value={formData.notes} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg bg-gray-100" placeholder="e.g., Customer requested afternoon install..."></textarea>
+                            <textarea id="notes" name="notes" rows="2" value={formData.notes} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg bg-gray-100" placeholder="e.g., Customer requested afternoon install..." data-help="Notes for the office, such as a preferred install time."></textarea>
                         </div>
                     </div>
 
@@ -244,12 +246,12 @@ export const OrderFormScreen = ({ approvedItems, onUpdateItemPrice, onRemoveItem
                             <SignaturePad onSignature={setHasSigned} />
                         </div>
                         <div className="flex items-center mt-4">
-                            <input id="agree" type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="h-4 w-4 text-blue-600 rounded" />
+                            <input id="agree" type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="h-4 w-4 text-blue-600 rounded" data-help="The customer ticks this to agree to the terms. Needed before the order can be submitted." />
                             <label htmlFor="agree" className="ml-2 block text-sm text-gray-700">I agree to the terms and authorize this work.</label>
                         </div>
                     </div>
 
-                    <button type="submit" disabled={!canSubmit} className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg text-lg disabled:bg-gray-300 flex items-center justify-center h-12 transition-colors">
+                    <button type="submit" disabled={!canSubmit} className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg text-lg disabled:bg-gray-300 flex items-center justify-center h-12 transition-colors" data-help="Submits the signed order and shows the receipt. Needs a signature and the ticked agreement.">
                         {loading ? <Loader small={true} /> : `Submit Binding Order — $${orderTotal.toLocaleString()}`}
                     </button>
                 </form>
