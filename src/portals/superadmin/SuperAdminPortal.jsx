@@ -4,6 +4,7 @@ import { api } from '../../api/mockApi';
 import { Loader } from '../../components/Loader';
 import { LogOutIcon } from '../../components/Icons';
 import { VideoStudioScreen } from '../shared/VideoStudioScreen';
+import { TopBar } from '../../design/TopBar';
 
 const INDUSTRIES = ['HVAC', 'Plumbing', 'Electrical', 'Roofing', 'Pest Control', 'Pool Service', 'Landscaping', 'Other'];
 
@@ -45,37 +46,37 @@ const AddCompanyForm = ({ onCreated, onCancel }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label htmlFor="co_name" className="block text-sm font-medium text-gray-600 mb-1">Company name *</label>
-                    <input id="co_name" className={field} value={form.name} onChange={set('name')} placeholder="e.g. Northside HVAC" />
+                    <input id="co_name" className={field} value={form.name} onChange={set('name')} placeholder="e.g. Northside HVAC" data-help="The company's name as its team knows it. Required." />
                 </div>
                 <div>
                     <label htmlFor="co_website" className="block text-sm font-medium text-gray-600 mb-1">Website</label>
-                    <input id="co_website" className={field} value={form.website} onChange={set('website')} placeholder="northsidehvac.com" />
+                    <input id="co_website" className={field} value={form.website} onChange={set('website')} placeholder="northsidehvac.com" data-help="The company's website. Optional." />
                 </div>
                 <div>
                     <label htmlFor="co_industry" className="block text-sm font-medium text-gray-600 mb-1">Trade</label>
-                    <select id="co_industry" className={field} value={form.industry} onChange={set('industry')}>
+                    <select id="co_industry" className={field} value={form.industry} onChange={set('industry')} data-help="The company's trade, such as HVAC or Plumbing.">
                         {INDUSTRIES.map(i => <option key={i} value={i}>{i}</option>)}
                     </select>
                 </div>
                 <div>
                     <label htmlFor="co_color" className="block text-sm font-medium text-gray-600 mb-1">Brand colour</label>
                     <div className="flex items-center gap-2">
-                        <input id="co_color" type="color" className="h-10 w-14 rounded border border-gray-200" value={form.brand_color} onChange={set('brand_color')} />
+                        <input id="co_color" type="color" className="h-10 w-14 rounded border border-gray-200" value={form.brand_color} onChange={set('brand_color')} data-help="Picks the company's brand colour, shown in its technicians' top bar." />
                         <span className="text-sm text-gray-600">{form.brand_color}</span>
                     </div>
                 </div>
                 <div>
                     <label htmlFor="co_admin_name" className="block text-sm font-medium text-gray-600 mb-1">Company admin name</label>
-                    <input id="co_admin_name" className={field} value={form.admin_name} onChange={set('admin_name')} placeholder="Owner or service manager" />
+                    <input id="co_admin_name" className={field} value={form.admin_name} onChange={set('admin_name')} placeholder="Owner or service manager" data-help="Name of the person who will run this company's admin portal. Optional." />
                 </div>
                 <div>
                     <label htmlFor="co_admin_email" className="block text-sm font-medium text-gray-600 mb-1">Company admin email *</label>
-                    <input id="co_admin_email" type="email" className={field} value={form.admin_email} onChange={set('admin_email')} placeholder="owner@northsidehvac.com" />
+                    <input id="co_admin_email" type="email" className={field} value={form.admin_email} onChange={set('admin_email')} placeholder="owner@northsidehvac.com" data-help="Email of the company admin, who gets the invite. Required." />
                 </div>
             </div>
             <div className="flex gap-3 justify-end">
-                <button type="button" onClick={onCancel} className="px-4 py-2 rounded-lg text-gray-700 bg-gray-100 hover:bg-gray-200">Cancel</button>
-                <button type="submit" disabled={!canSave || saving} className="px-4 py-2 rounded-lg text-white bg-[#004B87] hover:bg-blue-800 disabled:opacity-50 flex items-center gap-2">
+                <button type="button" onClick={onCancel} className="px-4 py-2 rounded-lg text-gray-700 bg-gray-100 hover:bg-gray-200" data-help="Closes the form without adding a company.">Cancel</button>
+                <button type="submit" disabled={!canSave || saving} className="px-4 py-2 rounded-lg text-white bg-[#004B87] hover:bg-blue-800 disabled:opacity-50 flex items-center gap-2" data-help="Adds the company and invites its admin. Needs a name and an admin email (the demo sends no email).">
                     {saving ? <Loader small={true} /> : 'Create company and invite admin'}
                 </button>
             </div>
@@ -115,20 +116,14 @@ export const SuperAdminPortal = () => {
 
     return (
         <div className="min-h-screen bg-gray-100">
-            <header className="bg-[#1F2937] text-white p-4 flex justify-between items-center sticky top-0 z-10">
-                <div>
-                    <p className="font-bold text-lg">Upseller Platform</p>
-                    <p className="text-xs text-gray-300">Super admin — build out companies</p>
-                </div>
-                <div className="flex items-center gap-3">
-                    <span className="hidden sm:inline text-sm">{user.full_name}</span>
-                    <button onClick={logout} aria-label="Log out" className="p-2 hover:bg-white/20 rounded-full"><LogOutIcon /></button>
-                </div>
-            </header>
+            <TopBar screen="superadmin" name="Upseller Platform" sub="Super admin — build out companies">
+                <span className="rh-user">{user.full_name}</span>
+                <button onClick={logout} aria-label="Log out" className="rh-icon-btn" data-help="Signs you out and returns to the login screen."><LogOutIcon /></button>
+            </TopBar>
 
             <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-4 flex gap-2">
                 {[['companies', 'Companies'], ['videos', 'Video production']].map(([key, label]) => (
-                    <button key={key} onClick={() => setTab(key)} className={`px-4 py-2 rounded-lg text-sm font-semibold ${tab === key ? 'bg-[#1F2937] text-white' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'}`}>{label}</button>
+                    <button key={key} onClick={() => setTab(key)} aria-current={tab === key ? 'page' : undefined} data-help={key === 'companies' ? 'Shows the platform totals and the list of client companies.' : 'Shows the video requests from all companies, ready to produce.'} className={`px-4 py-2 rounded-lg text-sm font-semibold ${tab === key ? 'bg-[#1F2937] text-white' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'}`}>{label}</button>
                 ))}
             </div>
             {tab === 'videos' ? (
@@ -151,7 +146,7 @@ export const SuperAdminPortal = () => {
 
                         {showForm
                             ? <AddCompanyForm onCreated={handleCreated} onCancel={() => setShowForm(false)} />
-                            : <button onClick={() => { setShowForm(true); setNotice(''); }} className="px-4 py-2 rounded-lg text-white bg-[#004B87] hover:bg-blue-800 font-semibold">+ Add company</button>
+                            : <button onClick={() => { setShowForm(true); setNotice(''); }} className="px-4 py-2 rounded-lg text-white bg-[#004B87] hover:bg-blue-800 font-semibold" data-help="Opens the form to add a client company and invite its admin.">+ Add company</button>
                         }
 
                         <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto">
@@ -183,7 +178,7 @@ export const SuperAdminPortal = () => {
                                             <td className="p-3 text-right tabular-nums">{c.technicians}</td>
                                             <td className="p-3"><StatusPill status={c.status} /></td>
                                             <td className="p-3 text-right">
-                                                <button onClick={() => toggleStatus(c)} className="text-sm text-blue-700 hover:underline">
+                                                <button onClick={() => toggleStatus(c)} className="text-sm text-blue-700 hover:underline" data-help={c.status === 'active' ? `Pauses ${c.name}: switches the company off.` : `Activates ${c.name}: switches the company on.`}>
                                                     {c.status === 'active' ? 'Pause' : 'Activate'}
                                                 </button>
                                             </td>

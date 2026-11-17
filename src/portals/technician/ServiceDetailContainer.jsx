@@ -7,7 +7,7 @@ import { CustomerDecisionScreen } from './CustomerDecisionScreen';
 
 const TechnicianDetailScreen = ({ service, onBack, onPresent, videos = [] }) => (
     <div className="p-4 sm:p-6 bg-gray-50 min-h-screen">
-        <button onClick={onBack} className="text-blue-600 font-semibold mb-4 inline-flex items-center">&larr; Back to Services</button>
+        <button onClick={onBack} className="text-blue-600 font-semibold mb-4 inline-flex items-center" data-help="Goes back to the visit and the service list without recording a decision.">&larr; Back to Services</button>
         <div className="bg-white p-6 rounded-2xl shadow-lg">
             <div className="flex justify-between items-start mb-4">
                 <h1 className="text-2xl font-bold text-gray-900">{service.name}</h1>
@@ -34,7 +34,7 @@ const TechnicianDetailScreen = ({ service, onBack, onPresent, videos = [] }) => 
                 <h3 className="font-bold text-yellow-800">Your Script:</h3>
                 <p className="text-yellow-900 italic mt-1">"{service.script}"</p>
             </div>
-            <button onClick={onPresent} className="w-full bg-[#004B87] hover:bg-blue-800 text-white font-bold py-4 px-4 rounded-lg text-lg">
+            <button onClick={onPresent} className="w-full bg-[#004B87] hover:bg-blue-800 text-white font-bold py-4 px-4 rounded-lg text-lg" data-help="Opens the customer's screen, where the customer approves or declines this offer.">
                 Present to Customer
             </button>
         </div>
@@ -60,15 +60,17 @@ const FollowUpPrompt = ({ service, defaultAddress, onFollowUp, onSkip }) => {
                     onChange={(e) => setAddress(e.target.value)}
                     className="w-full px-4 py-3 rounded-lg bg-gray-100 mb-4"
                     placeholder="Customer address..."
+                    data-help="The address to follow up at. Change it if the customer gave a different one."
                 />
                 <div className="flex gap-3">
-                    <button onClick={onSkip} className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg">
+                    <button onClick={onSkip} className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg" data-help="Records the decline without a follow-up and goes back to the visit.">
                         Skip
                     </button>
                     <button
                         onClick={() => onFollowUp(address)}
                         disabled={!address.trim()}
                         className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg disabled:bg-gray-300"
+                        data-help="Tags this address for a follow-up on this offer in 30 days. Your admin sees it under Follow-Ups."
                     >
                         Set Follow-Up
                     </button>

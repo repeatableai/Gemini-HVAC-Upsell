@@ -37,15 +37,15 @@ export const StartVisitScreen = ({ user, onStarted }) => {
             <form onSubmit={handleStart} className="bg-white rounded-2xl shadow p-6 mt-4 space-y-4">
                 <div>
                     <label htmlFor="visit_customer" className="block text-sm font-medium text-gray-600 mb-1">Customer name *</label>
-                    <input id="visit_customer" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className="w-full px-4 py-3 rounded-lg bg-gray-100" placeholder="e.g. Williams Residence" />
+                    <input id="visit_customer" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className="w-full px-4 py-3 rounded-lg bg-gray-100" placeholder="e.g. Williams Residence" data-help="Type the customer's name. Required to start the visit." />
                 </div>
                 <div>
                     <label htmlFor="visit_address" className="block text-sm font-medium text-gray-600 mb-1">Service address</label>
-                    <input id="visit_address" value={address} onChange={(e) => setAddress(e.target.value)} className="w-full px-4 py-3 rounded-lg bg-gray-100" placeholder="Street, city" />
+                    <input id="visit_address" value={address} onChange={(e) => setAddress(e.target.value)} className="w-full px-4 py-3 rounded-lg bg-gray-100" placeholder="Street, city" data-help="Type the service address. Optional; it pre-fills follow-ups and the order." />
                 </div>
                 <div>
                     <label htmlFor="visit_type" className="block text-sm font-medium text-gray-600 mb-1">Visit type *</label>
-                    <select id="visit_type" value={visitType} onChange={(e) => setVisitType(e.target.value)} className="w-full px-4 py-3 rounded-lg bg-gray-100">
+                    <select id="visit_type" value={visitType} onChange={(e) => setVisitType(e.target.value)} className="w-full px-4 py-3 rounded-lg bg-gray-100" data-help="Pick the visit type. It sets which offers you must present before the visit can close.">
                         <option value="">Select visit type...</option>
                         {Object.keys(checklists).map(type => <option key={type} value={type}>{type}</option>)}
                     </select>
@@ -58,7 +58,7 @@ export const StartVisitScreen = ({ user, onStarted }) => {
                         </ul>
                     </div>
                 )}
-                <button type="submit" disabled={!canStart || starting} className="w-full bg-[#004B87] hover:bg-blue-800 text-white font-bold py-3 rounded-lg disabled:opacity-50 flex items-center justify-center h-12">
+                <button type="submit" disabled={!canStart || starting} className="w-full bg-[#004B87] hover:bg-blue-800 text-white font-bold py-3 rounded-lg disabled:opacity-50 flex items-center justify-center h-12" data-help="Opens the visit with its list of required offers. Needs a customer name and a visit type.">
                     {starting ? <Loader small={true} /> : 'Start visit'}
                 </button>
             </form>

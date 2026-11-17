@@ -10,7 +10,7 @@ const STATUS = {
     requested: { label: 'Requested', style: 'bg-gray-200 text-gray-800' },
     in_production: { label: 'In production', style: 'bg-amber-100 text-amber-800' },
     ready: { label: 'Ready', style: 'bg-green-100 text-green-800' },
-    changes_needed: { label: 'Changes needed', style: 'bg-red-100 text-red-700' },
+    changes_needed: { label: 'Changes needed', style: 'bg-amber-100 text-amber-800' },
 };
 const LENGTHS = [15, 30, 60, 90, 120];
 const ASPECTS = [
@@ -61,9 +61,9 @@ const CopyBox = ({ text }) => {
     };
     return (
         <div className="mt-3">
-            <textarea ref={ref} readOnly value={text} rows={10} className="w-full text-xs font-mono p-3 rounded-lg bg-gray-50 border border-gray-200" />
+            <textarea ref={ref} readOnly value={text} rows={10} className="w-full text-xs font-mono p-3 rounded-lg bg-gray-50 border border-gray-200" data-help="The full production job for the 3D movie pipeline. Read-only; copy it with the button below." />
             <div className="flex items-center gap-3 mt-2">
-                <button type="button" onClick={copy} className="px-3 py-1.5 text-sm rounded-lg bg-gray-800 text-white hover:bg-gray-700">Copy production job</button>
+                <button type="button" onClick={copy} className="px-3 py-1.5 text-sm rounded-lg bg-gray-800 text-white hover:bg-gray-700" data-help="Copies the production job so you can paste it into the Video-Production pipeline.">Copy production job</button>
                 {copied && <span className="text-sm text-gray-600">{copied}</span>}
             </div>
         </div>
@@ -136,25 +136,25 @@ const NewVideoForm = ({ companyId, companies, services, purposes, requestedBy, o
                 {!companyId && (
                     <div>
                         <label htmlFor="vid_company" className="block text-sm font-medium text-gray-600 mb-1">Company</label>
-                        <select id="vid_company" className={field} value={form.company_id} onChange={set('company_id')}>
+                        <select id="vid_company" className={field} value={form.company_id} onChange={set('company_id')} data-help="Picks the company this video is for.">
                             {companies.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                         </select>
                     </div>
                 )}
                 <div className={companyId ? 'sm:col-span-2' : ''}>
                     <label htmlFor="vid_title" className="block text-sm font-medium text-gray-600 mb-1">Video title *</label>
-                    <input id="vid_title" className={field} value={form.title} onChange={set('title')} placeholder="e.g. Why a UV light pays for itself" />
+                    <input id="vid_title" className={field} value={form.title} onChange={set('title')} placeholder="e.g. Why a UV light pays for itself" data-help="A short title for the video. Required." />
                 </div>
                 <div>
                     <label htmlFor="vid_purpose" className="block text-sm font-medium text-gray-600 mb-1">What it is for</label>
-                    <select id="vid_purpose" className={field} value={form.purpose} onChange={set('purpose')}>
+                    <select id="vid_purpose" className={field} value={form.purpose} onChange={set('purpose')} data-help="What the video is for: shown to customers during an offer, technician training, or another use.">
                         {purposes.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
                     </select>
                 </div>
                 {form.purpose === 'customer_offer' && (
                     <div>
                         <label htmlFor="vid_service" className="block text-sm font-medium text-gray-600 mb-1">Plays during which offer *</label>
-                        <select id="vid_service" className={field} value={form.service_id} onChange={set('service_id')}>
+                        <select id="vid_service" className={field} value={form.service_id} onChange={set('service_id')} data-help="The offer this video plays during, on the technician's tablet. Required for customer videos.">
                             <option value="">Choose an offer...</option>
                             {services.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                         </select>
@@ -167,51 +167,52 @@ const NewVideoForm = ({ companyId, companies, services, purposes, requestedBy, o
                     <button
                         type="button"
                         onClick={dictation.listening ? dictation.stop : dictation.start}
+                        data-help={dictation.listening ? 'Stops listening. What you said stays in the script box.' : 'Starts the microphone so you can speak the script (Google Chrome). Each sentence appears as you finish it.'}
                         className={`px-3 py-1.5 text-sm rounded-lg font-semibold ${dictation.listening ? 'bg-red-600 text-white' : 'bg-[#004B87] text-white hover:bg-blue-800'}`}
                     >
                         {dictation.listening ? '■ Stop dictating' : '● Dictate'}
                     </button>
                 </div>
-                <textarea id="vid_script" rows={7} className={field} value={form.script} onChange={set('script')} placeholder="Say or type exactly what the narrator should say." />
-                {dictation.listening && <p className="text-sm text-red-700 mt-1">Listening… speak the script; each sentence appears as you finish it.</p>}
+                <textarea id="vid_script" rows={7} className={field} value={form.script} onChange={set('script')} placeholder="Say or type exactly what the narrator should say." data-help="The narrator's script. Dictate it or type it. Required." />
+                {dictation.listening && <p className="text-sm text-amber-800 mt-1">Listening… speak the script; each sentence appears as you finish it.</p>}
                 {dictation.error && <p className="text-sm text-amber-800 mt-1">{dictation.error}</p>}
                 <label className="flex items-center gap-2 mt-2 text-sm text-gray-700">
-                    <input type="checkbox" checked={form.verbatim} onChange={set('verbatim')} /> Narrate word for word (no rewording)
+                    <input type="checkbox" checked={form.verbatim} onChange={set('verbatim')} data-help="When ticked, the narrator reads your script word for word. Untick to let production tighten it for time." /> Narrate word for word (no rewording)
                 </label>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                     <label htmlFor="vid_length" className="block text-sm font-medium text-gray-600 mb-1">Length</label>
-                    <select id="vid_length" className={field} value={form.length_seconds} onChange={set('length_seconds')}>
+                    <select id="vid_length" className={field} value={form.length_seconds} onChange={set('length_seconds')} data-help="How long the finished video should run.">
                         {LENGTHS.map(l => <option key={l} value={l}>{l} seconds</option>)}
                     </select>
                 </div>
                 <div>
                     <label htmlFor="vid_aspect" className="block text-sm font-medium text-gray-600 mb-1">Shape</label>
-                    <select id="vid_aspect" className={field} value={form.aspect} onChange={set('aspect')}>
+                    <select id="vid_aspect" className={field} value={form.aspect} onChange={set('aspect')} data-help="The video's shape: wide for tablets and TVs, vertical for phones, or square.">
                         {ASPECTS.map(a => <option key={a.value} value={a.value}>{a.label}</option>)}
                     </select>
                 </div>
                 <div>
                     <label htmlFor="vid_look" className="block text-sm font-medium text-gray-600 mb-1">Look</label>
-                    <select id="vid_look" className={field} value={form.look} onChange={set('look')}>
+                    <select id="vid_look" className={field} value={form.look} onChange={set('look')} data-help="The visual style of the video.">
                         {LOOKS.map(l => <option key={l} value={l}>{l}</option>)}
                     </select>
                 </div>
                 <div className="sm:col-span-2">
                     <label htmlFor="vid_voice" className="block text-sm font-medium text-gray-600 mb-1">Voice</label>
-                    <input id="vid_voice" className={field} value={form.voice} onChange={set('voice')} />
+                    <input id="vid_voice" className={field} value={form.voice} onChange={set('voice')} data-help="Describe the narrator's voice. Change it if you want a different one." />
                 </div>
                 <div>
                     <label htmlFor="vid_music" className="block text-sm font-medium text-gray-600 mb-1">Music</label>
-                    <select id="vid_music" className={field} value={form.music} onChange={set('music')}>
+                    <select id="vid_music" className={field} value={form.music} onChange={set('music')} data-help="The music under the voice, or none.">
                         {MUSIC.map(m => <option key={m} value={m}>{m}</option>)}
                     </select>
                 </div>
             </div>
             <div className="flex gap-3 justify-end">
-                <button type="button" onClick={onCancel} className="px-4 py-2 rounded-lg text-gray-700 bg-gray-100 hover:bg-gray-200">Cancel</button>
-                <button type="submit" disabled={!canSave || saving} className="px-4 py-2 rounded-lg text-white bg-[#004B87] hover:bg-blue-800 disabled:opacity-50 flex items-center gap-2">
+                <button type="button" onClick={onCancel} className="px-4 py-2 rounded-lg text-gray-700 bg-gray-100 hover:bg-gray-200" data-help="Closes the form without sending anything.">Cancel</button>
+                <button type="submit" disabled={!canSave || saving} className="px-4 py-2 rounded-lg text-white bg-[#004B87] hover:bg-blue-800 disabled:opacity-50 flex items-center gap-2" data-help="Sends this request to the Repeatable video team. Needs a title and a script.">
                     {saving ? <Loader small={true} /> : 'Send to production'}
                 </button>
             </div>
@@ -235,20 +236,20 @@ const ProducerControls = ({ req, onSaved }) => {
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mt-3 items-end">
             <div>
                 <label htmlFor={`st_${req.id}`} className="block text-xs font-medium text-gray-600 mb-1">Status</label>
-                <select id={`st_${req.id}`} className={field} value={status} onChange={(e) => setStatus(e.target.value)}>
+                <select id={`st_${req.id}`} className={field} value={status} onChange={(e) => setStatus(e.target.value)} data-help="Sets where this video stands: Requested, In production, Ready or Changes needed.">
                     {Object.entries(STATUS).map(([v, s]) => <option key={v} value={v}>{s.label}</option>)}
                 </select>
             </div>
             <div className="sm:col-span-2">
                 <label htmlFor={`url_${req.id}`} className="block text-xs font-medium text-gray-600 mb-1">Finished video link (MP4)</label>
-                <input id={`url_${req.id}`} className={field} value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://…/video.mp4" />
+                <input id={`url_${req.id}`} className={field} value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://…/video.mp4" data-help="Paste the link to the finished MP4. Needed to mark the video Ready." />
             </div>
-            <button type="button" onClick={save} disabled={saving || (status === 'ready' && !url.trim())} className="px-3 py-2 rounded-lg text-white bg-green-600 hover:bg-green-700 disabled:opacity-50 text-sm font-semibold">
+            <button type="button" onClick={save} disabled={saving || (status === 'ready' && !url.trim())} className="px-3 py-2 rounded-lg text-white bg-green-600 hover:bg-green-700 disabled:opacity-50 text-sm font-semibold" data-help="Saves the status, link and folder. A Ready video then plays on the technicians' tablets.">
                 {status === 'ready' && !url.trim() ? 'Add the link to mark ready' : saving ? 'Saving…' : 'Save'}
             </button>
             <div className="sm:col-span-4">
                 <label htmlFor={`folder_${req.id}`} className="block text-xs font-medium text-gray-600 mb-1">Production folder</label>
-                <input id={`folder_${req.id}`} className={field} value={folder} onChange={(e) => setFolder(e.target.value)} placeholder="Video-Production/02-working/…" />
+                <input id={`folder_${req.id}`} className={field} value={folder} onChange={(e) => setFolder(e.target.value)} placeholder="Video-Production/02-working/…" data-help="Where the production files live in the Video-Production project. Optional." />
             </div>
         </div>
     );
@@ -303,7 +304,7 @@ export const VideoStudioScreen = ({ mode = 'company', companyId, requestedBy }) 
                     onCancel={() => setShowForm(false)}
                 />
             ) : (
-                <button onClick={() => { setShowForm(true); setNotice(''); }} className="px-4 py-2 rounded-lg text-white bg-[#004B87] hover:bg-blue-800 font-semibold">+ Dictate a new video</button>
+                <button onClick={() => { setShowForm(true); setNotice(''); }} className="px-4 py-2 rounded-lg text-white bg-[#004B87] hover:bg-blue-800 font-semibold" data-help="Opens the form to request a new video: title, purpose, script and style.">+ Dictate a new video</button>
             )}
 
             <div className="space-y-4">
@@ -330,7 +331,7 @@ export const VideoStudioScreen = ({ mode = 'company', companyId, requestedBy }) 
                                 <video src={req.video_url} controls playsInline className="w-full max-w-xl mt-3 rounded-lg bg-black aspect-video" />
                             )}
                             <div className="flex flex-wrap gap-3 mt-3">
-                                <button type="button" onClick={() => setOpenJob(openJob === req.id ? null : req.id)} className="text-sm text-blue-700 hover:underline">
+                                <button type="button" onClick={() => setOpenJob(openJob === req.id ? null : req.id)} className="text-sm text-blue-700 hover:underline" data-help={openJob === req.id ? 'Hides the production job text.' : 'Shows the full production job for this video, ready to copy.'}>
                                     {openJob === req.id ? 'Hide production job' : 'Show production job'}
                                 </button>
                             </div>

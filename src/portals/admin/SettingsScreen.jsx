@@ -59,7 +59,7 @@ export const SettingsScreen = () => {
                     <div className="space-y-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Routing Method</label>
-                            <select name="order_routing_type" value={config.order_routing_type} onChange={handleInputChange} className="block w-full rounded-md border-gray-300 shadow-sm">
+                            <select name="order_routing_type" value={config.order_routing_type} onChange={handleInputChange} className="block w-full rounded-md border-gray-300 shadow-sm" data-help="Where signed orders go: an email address, a webhook, or your accounting system.">
                                 <option value="email">Email</option>
                                 <option value="webhook">Webhook</option>
                                 <option value="accounting">Accounting System</option>
@@ -70,7 +70,7 @@ export const SettingsScreen = () => {
                             <>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">Accounting System</label>
-                                    <select name="accounting_system" value={config.accounting_system || 'none'} onChange={handleInputChange} className="block w-full rounded-md border-gray-300 shadow-sm">
+                                    <select name="accounting_system" value={config.accounting_system || 'none'} onChange={handleInputChange} className="block w-full rounded-md border-gray-300 shadow-sm" data-help="Your accounting system. Once set, technicians can look up customers on the order form.">
                                         <option value="none">Select...</option>
                                         <option value="quickbooks">QuickBooks</option>
                                         <option value="servicetitan">ServiceTitan</option>
@@ -82,10 +82,10 @@ export const SettingsScreen = () => {
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700">API Key / Connection Token</label>
                                             <input name="accounting_api_key" value={config.accounting_api_key || ''} onChange={handleInputChange}
-                                                type="password" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" placeholder="Enter API key..." />
+                                                type="password" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" placeholder="Enter API key..." data-help="The key or token that connects to your accounting system." />
                                         </div>
                                         <div className="flex items-center gap-4">
-                                            <button type="button" onClick={handleTestConnection} disabled={testingConnection}
+                                            <button type="button" onClick={handleTestConnection} disabled={testingConnection} data-help="Checks the connection to your accounting system. In this demo the check is simulated."
                                                 className="bg-blue-600 text-white text-sm font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-blue-300 flex items-center gap-2">
                                                 {testingConnection ? <><Loader small={true} /> Testing...</> : 'Test Connection'}
                                             </button>
@@ -103,7 +103,8 @@ export const SettingsScreen = () => {
                                 <label className="block text-sm font-medium text-gray-700">Destination</label>
                                 <input name="order_routing_target" value={config.order_routing_target} onChange={handleInputChange}
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                    placeholder={config.order_routing_type === 'email' ? 'orders@company.com' : 'https://api.yoursystem.com/webhook'} />
+                                    placeholder={config.order_routing_type === 'email' ? 'orders@company.com' : 'https://api.yoursystem.com/webhook'}
+                                    data-help={config.order_routing_type === 'email' ? 'The email address that receives each signed order.' : 'The web address each signed order is posted to.'} />
                                 <p className="mt-2 text-sm text-gray-500">
                                     {config.order_routing_type === 'email'
                                         ? 'Enter the email address to receive order notifications.'
@@ -122,24 +123,24 @@ export const SettingsScreen = () => {
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Monthly Revenue Goal ($)</label>
                                 <input name="monthly_revenue_goal" type="number" value={config.monthly_revenue_goal || 40000}
-                                    onChange={handleInputChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" min="0" step="1000" />
+                                    onChange={handleInputChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" min="0" step="1000" data-help="Your monthly upsell revenue goal, shown as the bar on the dashboard." />
                                 <p className="text-xs text-gray-500 mt-1">Shown as thermometer on dashboard</p>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Min Presentations / Month</label>
                                 <input name="min_presentations_per_month" type="number" value={config.min_presentations_per_month || 20}
-                                    onChange={handleInputChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" min="1" />
+                                    onChange={handleInputChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" min="1" data-help="Offers each technician should present per month. Fewer marks them Below Goal." />
                                 <p className="text-xs text-gray-500 mt-1">Below this = "Below Goal"</p>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Target Approval Rate (%)</label>
                                 <input name="target_approval_rate" type="number" value={config.target_approval_rate || 25}
-                                    onChange={handleInputChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" min="1" max="100" />
+                                    onChange={handleInputChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" min="1" max="100" data-help="The share of offers you aim to have approved." />
                             </div>
                         </div>
                         <div className="flex items-center">
                             <input name="flag_underperformers" type="checkbox" checked={config.flag_underperformers !== false}
-                                onChange={handleInputChange} className="h-4 w-4 text-blue-600 rounded" />
+                                onChange={handleInputChange} className="h-4 w-4 text-blue-600 rounded" data-help="When ticked, technicians below the monthly goal are marked on the leaderboard." />
                             <label className="ml-2 block text-sm text-gray-700">Flag underperformers on dashboard leaderboard</label>
                         </div>
                     </div>
@@ -157,7 +158,7 @@ export const SettingsScreen = () => {
                         ].map(({ key, label }) => (
                             <div key={key} className="flex items-center">
                                 <input type="checkbox" checked={config.notification_preferences?.[key] || false}
-                                    onChange={() => handleNotifChange(key)} className="h-4 w-4 text-blue-600 rounded" />
+                                    onChange={() => handleNotifChange(key)} className="h-4 w-4 text-blue-600 rounded" data-help={`Turns on or off: ${label.toLowerCase()}.`} />
                                 <label className="ml-2 block text-sm text-gray-700">{label}</label>
                             </div>
                         ))}
@@ -165,7 +166,7 @@ export const SettingsScreen = () => {
                 </div>
 
                 <div className="pt-2">
-                    <button type="submit" disabled={loading}
+                    <button type="submit" disabled={loading} data-help="Saves every setting on this page."
                         className="bg-[#004B87] text-white font-semibold py-2 px-6 rounded-lg hover:bg-blue-800 disabled:bg-blue-300">
                         {loading ? 'Saving...' : 'Save All Settings'}
                     </button>

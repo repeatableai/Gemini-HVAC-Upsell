@@ -36,7 +36,7 @@ const VisitPanel = ({ visit, progress, services, approvedCount, onSelectService,
                             {r.outcome ? (
                                 <span className={`px-2 py-1 rounded-full text-xs font-semibold capitalize ${OUTCOME_CHIP[r.outcome]}`}>{r.outcome}</span>
                             ) : (
-                                svc && <button onClick={() => onSelectService(svc)} className="text-sm font-semibold text-white bg-[#004B87] hover:bg-blue-800 px-3 py-1 rounded-lg">Present now</button>
+                                svc && <button onClick={() => onSelectService(svc)} className="text-sm font-semibold text-white bg-[#004B87] hover:bg-blue-800 px-3 py-1 rounded-lg" data-help={`Opens ${r.name} so you can read the script and show it to the customer.`}>Present now</button>
                             )}
                         </li>
                     );
@@ -46,6 +46,9 @@ const VisitPanel = ({ visit, progress, services, approvedCount, onSelectService,
                 onClick={approvedCount > 0 ? onOpenOrder : onClose}
                 disabled={!progress.canClose || closing}
                 className="w-full mt-4 font-bold py-3 rounded-lg text-white bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:text-gray-600 disabled:cursor-not-allowed"
+                data-help={!progress.canClose
+                    ? 'Locked until each required offer has the customer\'s decision.'
+                    : approvedCount > 0 ? 'Opens the order form for the approved offers; the visit closes after the order.' : 'Closes this visit and records it.'}
             >
                 {!progress.canClose
                     ? `Locked: present ${remaining} more required offer${remaining === 1 ? '' : 's'} to close`
@@ -132,6 +135,7 @@ export const ServiceListScreen = ({ onSelectService, approvedItems = [], onOpenO
                 <button
                     onClick={() => setShowChecklist(!showChecklist)}
                     className="w-full bg-indigo-50 border border-indigo-200 rounded-xl p-3 text-left hover:bg-indigo-100 transition-colors"
+                    data-help="Shows or hides the list of things to check on this kind of visit."
                 >
                     <div className="flex justify-between items-center">
                         <span className="font-semibold text-indigo-800 text-sm">What to Look For Checklist</span>
@@ -147,6 +151,7 @@ export const ServiceListScreen = ({ onSelectService, approvedItems = [], onOpenO
                                 value={visitType}
                                 onChange={(e) => setVisitType(e.target.value)}
                                 className="w-full px-3 py-2 rounded-lg bg-gray-100 text-sm"
+                                data-help="Pick the visit type to see what to look for and which offer each finding leads to."
                             >
                                 <option value="">Select visit type...</option>
                                 {visitTypes.map(type => (
@@ -171,6 +176,7 @@ export const ServiceListScreen = ({ onSelectService, approvedItems = [], onOpenO
                                                     <button
                                                         onClick={() => onSelectService(svc)}
                                                         className="text-blue-600 text-xs font-semibold mt-1 hover:underline"
+                                                        data-help={`Opens ${svc.name} to present to the customer.`}
                                                     >
                                                         Present: {svc.name} ({svc.price_range}) &rarr;
                                                     </button>
@@ -207,7 +213,7 @@ export const ServiceListScreen = ({ onSelectService, approvedItems = [], onOpenO
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <span className="text-sm font-semibold text-gray-600">${item.price}</span>
-                                    <button onClick={() => onRemoveItem(idx)} className="text-gray-400 hover:text-red-500 transition-colors">
+                                    <button onClick={() => onRemoveItem(idx)} className="text-gray-400 hover:text-red-500 transition-colors" aria-label={`Remove ${item.service_name}`} data-help={`Takes ${item.service_name} out of the order.`}>
                                         <XIcon />
                                     </button>
                                 </div>
@@ -218,6 +224,9 @@ export const ServiceListScreen = ({ onSelectService, approvedItems = [], onOpenO
                         onClick={onOpenOrder}
                         disabled={visit && progress && !progress.canClose}
                         className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg text-base transition-colors disabled:bg-gray-300 disabled:text-gray-600"
+                        data-help={visit && progress && !progress.canClose
+                            ? 'Locked until each required offer has the customer\'s decision.'
+                            : 'Opens the order form for the approved services, for the customer to sign.'}
                     >
                         {visit && progress && !progress.canClose
                             ? 'Present every required offer before the order'
@@ -240,6 +249,7 @@ export const ServiceListScreen = ({ onSelectService, approvedItems = [], onOpenO
                                         key={service.id}
                                         onClick={() => !isApproved && onSelectService(service)}
                                         disabled={isApproved}
+                                        data-help={isApproved ? `${service.name} is already in the order.` : `Opens ${service.name}: price, benefits, video and your script.`}
                                         className={`p-6 rounded-2xl shadow-md text-left flex flex-col h-full transition-all ${
                                             isApproved
                                                 ? 'bg-green-50 border-2 border-green-300 cursor-default'

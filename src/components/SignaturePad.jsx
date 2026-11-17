@@ -50,12 +50,13 @@ export const SignaturePad = ({ onSignature }) => {
                 width="400"
                 height="150"
                 className="bg-gray-50 border border-gray-300 rounded-lg w-full cursor-crosshair"
+                data-help="The customer signs here: press and drag to draw the signature."
                 onMouseDown={startDrawing}
                 onMouseMove={draw}
                 onMouseUp={endDrawing}
                 onMouseLeave={endDrawing}
             />
-            <button type="button" onClick={clearSignature} className="text-sm text-blue-600 hover:underline mt-2">
+            <button type="button" onClick={clearSignature} className="text-sm text-blue-600 hover:underline mt-2" data-help="Wipes the signature box so the customer can sign again.">
                 Clear Signature
             </button>
         </div>

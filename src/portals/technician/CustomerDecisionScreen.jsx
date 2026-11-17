@@ -45,10 +45,10 @@ export const CustomerDecisionScreen = ({ service, onDecision }) => {
                             ))}
                         </ul>
                         <div className="flex flex-col sm:flex-row gap-4">
-                            <button onClick={handleDeclineClick} disabled={!!loading} className="w-full flex items-center justify-center bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-4 px-4 rounded-lg text-lg disabled:opacity-50">
+                            <button onClick={handleDeclineClick} disabled={!!loading} className="w-full flex items-center justify-center bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-4 px-4 rounded-lg text-lg disabled:opacity-50" data-help="Declines this offer. Next you choose a reason and add your initials.">
                                 <XIcon /><span className="ml-2">Decline</span>
                             </button>
-                            <button onClick={handleApprove} disabled={!!loading} className="w-full flex items-center justify-center bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-4 rounded-lg text-lg disabled:opacity-50">
+                            <button onClick={handleApprove} disabled={!!loading} className="w-full flex items-center justify-center bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-4 rounded-lg text-lg disabled:opacity-50" data-help="Approves this offer and adds it to the order.">
                                 {loading === 'approved' ? <Loader small={true} /> : <><CheckIcon /><span className="ml-2">Approve</span></>}
                             </button>
                         </div>
@@ -67,6 +67,7 @@ export const CustomerDecisionScreen = ({ service, onDecision }) => {
                                         checked={declineReason === reason.value}
                                         onChange={(e) => setDeclineReason(e.target.value)}
                                         className="h-4 w-4 text-blue-600"
+                                        data-help={`Choose this if the reason is: ${reason.label}.`}
                                     />
                                     <span className="ml-3 text-gray-700">{reason.label}</span>
                                 </label>
@@ -79,11 +80,13 @@ export const CustomerDecisionScreen = ({ service, onDecision }) => {
                             onChange={(e) => setInitials(e.target.value.slice(0, 4))}
                             className="w-full px-4 py-3 rounded-lg bg-gray-100 mb-4 uppercase tracking-widest text-center text-lg"
                             placeholder="e.g. JW"
+                            data-help="The customer types their initials (two to four letters) to confirm the decline."
                         />
                         <button
                             onClick={handleConfirmDecline}
                             disabled={!!loading || !declineReason || initials.trim().length < 2}
                             className="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg disabled:opacity-50 flex items-center justify-center"
+                            data-help="Records the decline. Works once a reason is chosen and initials are entered."
                         >
                             {loading === 'declined' ? <Loader small={true} /> : 'Confirm Decline'}
                         </button>

@@ -7,6 +7,7 @@ import { ServiceDetailContainer } from './ServiceDetailContainer';
 import { OrderFormScreen } from './OrderFormScreen';
 import { StartVisitScreen } from './StartVisitScreen';
 import { SuccessScreen } from '../../components/SuccessScreen';
+import { TopBar } from '../../design/TopBar';
 
 // =========================================================================
 // ORDER RECEIPT SCREEN — shown after submission, simulates email to customer
@@ -115,6 +116,7 @@ const OrderReceiptScreen = ({ order, onDone }) => {
                     <button
                         onClick={onDone}
                         className="w-full bg-[#004B87] hover:bg-blue-800 text-white font-bold py-3 px-4 rounded-lg text-lg transition-colors"
+                        data-help="Finishes this order, closes the visit and takes you back to start the next one."
                     >
                         Done — Return to Services
                     </button>
@@ -215,21 +217,19 @@ export const TechnicianPortal = () => {
         setView('receipt');
     };
 
-    const AppHeader = () => (
-        <header className="bg-white shadow-sm p-4 flex justify-between items-center sticky top-0 z-10" style={{ backgroundColor: user.company?.brand_color, color: 'white' }}>
-            {user.company.logo_url
-                ? <img src={user.company.logo_url} alt="Company Logo" className="h-8 object-contain" />
-                : <span className="font-bold text-lg">{user.company.name}</span>
-            }
-            <div className="flex items-center">
-                <span className="mr-4 hidden sm:inline">{user.full_name}</span>
-                <button onClick={logout} className="p-2 hover:bg-white/20 rounded-full transition-colors"><LogOutIcon /></button>
-            </div>
-        </header>
+    // One top bar on every technician screen: Repeatable AI logo, the company, How to use this, theme.
+    const shell = (content) => (
+        <div className="rh-shell min-h-screen bg-gray-50">
+            <TopBar screen="technician" name={user.company?.name} logoUrl={user.company?.logo_url} brand={user.company?.brand_color}>
+                <span className="rh-user">{user.full_name}</span>
+                <button onClick={logout} className="rh-icon-btn" aria-label="Log out" data-help="Signs you out and returns to the login screen."><LogOutIcon /></button>
+            </TopBar>
+            {content}
+        </div>
     );
 
     if (view === 'detail' && currentService) {
-        return (
+        return shell(
             <ServiceDetailContainer
                 service={currentService}
                 visit={visit}
@@ -241,7 +241,7 @@ export const TechnicianPortal = () => {
     }
 
     if (view === 'order') {
-        return (
+        return shell(
             <OrderFormScreen
                 approvedItems={approvedItems}
                 onUpdateItemPrice={handleUpdateItemPrice}
@@ -253,7 +253,7 @@ export const TechnicianPortal = () => {
     }
 
     if (view === 'receipt' && completedOrder) {
-        return (
+        return shell(
             <OrderReceiptScreen
                 order={completedOrder}
                 onDone={async () => {
@@ -266,12 +266,10 @@ export const TechnicianPortal = () => {
     }
 
     if (view === 'closed' && closedSummary) {
-        return <SuccessScreen title="Visit closed" message={`${closedSummary.customer}: ${closedSummary.asked} of ${closedSummary.required} required offers asked.`} />;
+        return shell(<SuccessScreen title="Visit closed" message={`${closedSummary.customer}: ${closedSummary.asked} of ${closedSummary.required} required offers asked.`} />);
     }
 
-    return (
-        <div className="min-h-screen bg-gray-50">
-            <AppHeader />
+    return shell(
             <main>
                 {!visit ? (
                     <StartVisitScreen user={user} onStarted={(v) => { setVisit(v); setView('list'); }} />
@@ -288,6 +286,5 @@ export const TechnicianPortal = () => {
                     />
                 )}
             </main>
-        </div>
     );
 };

@@ -446,10 +446,10 @@ store.videoRequests = [
     {
         id: 'vid_askfirst_launch',
         company_id: 'comp_sp_123',
-        title: 'AskFirst launch movie',
+        title: 'AskFirst launch movie (light theme)',
         purpose: 'marketing',
         service_id: '',
-        script: "Multiple documented, cited studies reveal: a full 35% of buyers will buy something else at the point of purchase \u2014 if they're simply asked.\n\nNationwide averages for technicians and salespeople in the services business \u2014 HVAC chief among them \u2014 show the ask happens on average only 11.5% of the time that they are in front of a buying customer. The demand is already there. The ask is not.\n\nThe problem in your business is not that customers won't buy the add-on. The problem is that nobody is asking them.\n\nThink about what just happened at the rental counter. You didn't want the insurance. You declined it. But the agent had to ask. The system wouldn't let her close out the contract without offering it. That single piece of friction \u2014 the forced ask \u2014 is why rental car companies generate $8 billion a year in ancillary revenue from products customers don't technically need.\n\nAskFirst is the system that does for your techs what the rental counter does for the agent. The technician cannot close the ticket \u2014 cannot collect payment, cannot leave the house, cannot move to the next call \u2014 without confirming that the four upsell prompts were offered to the customer. No menu. No skip button. No human willpower required.\n\nTop \"selling techs\" generate $700K\u2013$1M+ in annual revenue per head. Your average tech generates $250K\u2013$450K. The gap between them is not skill. It's not personality. It's the ask. Selling techs ask every house. Average techs ask when they remember.",
+        script: "Multiple documented, cited studies reveal: a full 35% of buyers will buy something else at the point of purchase \u2014 if they're simply asked.\n\nNationwide averages for technicians and salespeople in the services business \u2014 HVAC chief among them \u2014 show the ask happens on average only 11.5% of the time that they are in front of a buying customer. The demand is already there. The ask is not.\n\nThe problem in your business is not that customers won't buy the add-on. The problem is that only about one in nine of them is being asked.\n\nThink about what just happened at the rental counter. You didn't want the insurance. You declined it. But the agent had to ask. The system wouldn't let her close out the contract without offering it. That single piece of friction \u2014 the forced ask \u2014 is why rental car companies generate $8 billion a year in ancillary revenue from products customers don't technically need.\n\nAskFirst is the system that does for your techs what the rental counter does for the agent. The technician cannot close the ticket \u2014 cannot collect payment, cannot leave the house, cannot move to the next call \u2014 without confirming that the four upsell prompts were offered to the customer. No menu. No skip button. No human willpower required.\n\nTop \"selling techs\" generate $700K\u2013$1M+ in annual revenue per head. Your average tech generates $250K\u2013$450K. The gap between them is not skill. It's not personality. It's the ask. Selling techs ask every house. Average techs ask when they remember.",
         verbatim: true,
         length_seconds: 90,
         aspect: '16:9',
@@ -460,7 +460,7 @@ store.videoRequests = [
         video_url: '',
         requested_by: 'Kevin Connor',
         created_at: '2026-10-16T17:50:00Z',
-        production_folder: 'Video-Production/02-working/askfirst-launch-video/',
+        production_folder: 'Video-Production/02-working/askfirst-launch-video-light/',
     },
     {
         id: 'vid_syn_surge',
